@@ -39,6 +39,42 @@
   body.lefty #stick-zone{left:auto;right:0}
   body.lefty #bomb{right:auto;left:var(--l)}
   body.lefty #ability{right:auto;left:calc(var(--l) + 112px * var(--ui,1))}
+  /* celular deitado: a tela usa a altura toda e os botões ficam por cima, nos cantos (como nos jogos de celular) */
+  body.coarse.playing:not(.gameboy) #touch{height:100%}
+  body.coarse.playing:not(.gameboy) #stick-zone{height:75%}
+  /* celular em pé: Game Boy. A tela fica na moldura lá em cima e o #touch (topo posto pelo fit) é o corpo com os botões */
+  body.gameboy{background:radial-gradient(circle at 50% 0,#5a4380,#2f2244 75%)}
+  body.gameboy #game{border:12px solid #1b1426;border-radius:10px 10px 30px 10px;box-shadow:0 0 0 3px #0e0b14,0 8px 0 #0e0b14}
+  body.gameboy #touch{height:auto}
+  body.gameboy #touch::before{content:'TDG BOMB ARENA';position:absolute;top:10px;left:0;right:0;text-align:center;font:italic 900 13px system-ui,sans-serif;letter-spacing:3px;color:#ffc23a;opacity:.85}
+  body.gameboy #touch::after{content:'';position:absolute;right:calc(var(--r) + 8px);bottom:calc(22px + env(safe-area-inset-bottom,0px));width:62px;height:38px;border-radius:4px;background:repeating-linear-gradient(90deg,#0e0b14 0 5px,transparent 5px 12px);transform:rotate(-28deg);opacity:.55}
+  body.gameboy #pad,body.gameboy #stick{bottom:auto;top:calc(50% - 92px * var(--ui,1))}
+  body.gameboy #bomb{bottom:auto;top:calc(50% - 100px * var(--ui,1))}
+  body.gameboy #ability{bottom:auto;top:calc(50% - 4px * var(--ui,1));right:calc(var(--r) + 104px * var(--ui,1))}
+  body.gameboy.lefty #ability{right:auto;left:calc(var(--l) + 104px * var(--ui,1))}
+  /* corrida: volante (esquerda/direita) de um lado; ACELERAR, FREIO e o poder (bomba) do outro */
+  .kb{display:none;place-items:center;box-sizing:border-box;border:4px solid #0e0b14;border-radius:22px;box-shadow:0 5px 0 #0e0b14;font:900 calc(15px * var(--ui,1)) system-ui,sans-serif;letter-spacing:1px;color:#2b2038}
+  body.kart .kb{display:grid}
+  body.kart #pad,body.kart #ability,body.kart.analog #volante,body.kart.gameboy #touch::after{display:none}
+  #volante{left:var(--l);bottom:calc(22px * var(--ui,1));width:calc(196px * var(--ui,1));height:calc(100px * var(--ui,1));grid-template-columns:1fr 1fr;background-color:#6a4a8c;color:#f4f1e6;font-size:calc(34px * var(--ui,1))}
+  #volante span{display:grid;place-items:center;height:100%}#volante span+span{border-left:4px solid #0e0b14}
+  #volante.esq span:first-child,#volante.dir span+span{background:#ffc23a;color:#2b2038}
+  #volante span:first-child{border-radius:16px 0 0 16px}#volante span+span{border-radius:0 16px 16px 0}
+  #acelera{right:var(--r);bottom:calc(22px * var(--ui,1));width:calc(124px * var(--ui,1));height:calc(124px * var(--ui,1));border-radius:50%;background-color:#c4f45c}
+  #freio{right:calc(var(--r) + 134px * var(--ui,1));bottom:calc(22px * var(--ui,1));width:calc(92px * var(--ui,1));height:calc(72px * var(--ui,1));background-color:#ff5aa8}
+  body.kart #bomb{top:auto;bottom:calc(106px * var(--ui,1));right:calc(var(--r) + 136px * var(--ui,1));width:calc(88px * var(--ui,1));height:calc(88px * var(--ui,1))}
+  /* deitado os botões ficam por cima da pista: meio transparentes para o placar e a velocidade aparecerem embaixo */
+  body.kart:not(.gameboy) #touch .tb{opacity:.6}body.kart:not(.gameboy) #touch .tb.on{opacity:.9}
+  body.lefty #volante{left:auto;right:var(--r)}
+  body.lefty #acelera{right:auto;left:var(--l)}
+  body.lefty #freio{right:auto;left:calc(var(--l) + 134px * var(--ui,1))}
+  body.kart.lefty #bomb{right:auto;left:calc(var(--l) + 136px * var(--ui,1))}
+  /* corrida no Game Boy: embaixo volante e ACELERAR; em cima o poder e o FREIO */
+  body.kart.gameboy #volante{width:min(calc(196px * var(--ui,1)),52vw)}
+  body.kart.gameboy #freio{right:calc(var(--r) + 16px * var(--ui,1));bottom:calc(160px * var(--ui,1))}
+  body.kart.gameboy #bomb{right:calc(var(--r) + 128px * var(--ui,1));bottom:calc(152px * var(--ui,1))}
+  body.kart.gameboy.lefty #freio{right:auto;left:calc(var(--l) + 16px * var(--ui,1))}
+  body.kart.gameboy.lefty #bomb{right:auto;left:calc(var(--l) + 128px * var(--ui,1))}
   #msg{position:fixed;inset:0;display:grid;place-items:center;font:600 16px/1.4 system-ui;color:#bfc5cf;text-align:center;padding:24px}
   /* botão de instalar o app: só na tela de título */
   #instalar{position:fixed;top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));display:none;font:900 14px system-ui,sans-serif;padding:10px 14px;border-radius:10px;border:3px solid #0e0b14;background:#ffc23a;color:#2b2038;box-shadow:0 4px 0 #0e0b14;cursor:pointer}
@@ -85,7 +121,7 @@
   .sala-list li i{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;color:#8a8f9c;font-size:12px}
   .sala-list li.ok i{color:#c4f45c}
 </style>
-  <script type="module" crossorigin src="/assets/pixel-CioyceFB.js"></script>
+  <script type="module" crossorigin src="/assets/pixel-BIXaBSpY.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/audio-CMPNIqyJ.js">
 </head>
 <body>
@@ -95,6 +131,9 @@
   <div id="stick-zone"><div id="stick"><div id="knob"></div></div></div>
   <div id="ability" class="tb" data-art="btn-mao"></div>
   <div id="bomb" class="tb" data-art="btn-bomba"></div>
+  <div id="volante" class="tb kb"><span>&#9664;</span><span>&#9654;</span></div>
+  <div id="freio" class="tb kb">FREIO</div>
+  <div id="acelera" class="tb kb">ACELERAR</div>
 </div>
 <div id="sala" hidden></div>
 <button id="instalar" hidden>INSTALAR APP</button>
