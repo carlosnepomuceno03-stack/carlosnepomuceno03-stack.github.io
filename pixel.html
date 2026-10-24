@@ -13,21 +13,50 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TDG Arena">
 <style>
-  html,body{margin:0;height:100%;background:#0e0b14;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+  html,body{margin:0;height:100%;background:#0e0b14;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
   body{display:grid;place-items:center;font-family:system-ui,sans-serif;color:#f4f1e6}
   #game{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
-  /* controles de toque: só no celular e só durante a partida */
-  #touch{position:fixed;inset:auto 0 0 0;height:var(--pad-h,180px);display:none;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
+  /* controles de toque: só no celular e só durante a partida. São divs com a arte de fundo (não img), para o iPhone
+     não abrir o menu de copiar/arrastar a imagem quando o dedo fica parado em cima. --ui é o tamanho escolhido nas configurações */
+  #touch{--l:max(14px,env(safe-area-inset-left,0px));--r:max(18px,env(safe-area-inset-right,0px));position:fixed;inset:auto 0 0 0;height:calc(180px * var(--ui,1));display:none;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
   body.coarse.playing #touch{display:block}
-  #touch img{position:absolute;image-rendering:pixelated;pointer-events:auto;touch-action:none;-webkit-user-drag:none}
-  #pad{left:max(14px,env(safe-area-inset-left,0px));bottom:18px;width:144px;height:144px}
-  #bomb{right:max(18px,env(safe-area-inset-right,0px));bottom:26px;width:112px;height:112px}
-  #ability{right:max(130px,calc(env(safe-area-inset-right,0px) + 130px));bottom:96px;width:80px;height:80px}
-  #touch img.on{filter:brightness(1.35)}
+  #touch,#touch *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;-webkit-tap-highlight-color:transparent}
+  .tb{position:absolute;background:center/100% 100% no-repeat;image-rendering:pixelated;pointer-events:auto;touch-action:none}
+  #pad{left:var(--l);bottom:calc(18px * var(--ui,1));width:calc(144px * var(--ui,1));height:calc(144px * var(--ui,1))}
+  #bomb{right:var(--r);bottom:calc(26px * var(--ui,1));width:calc(112px * var(--ui,1));height:calc(112px * var(--ui,1))}
+  #ability{right:calc(var(--r) + 112px * var(--ui,1));bottom:calc(96px * var(--ui,1));width:calc(80px * var(--ui,1));height:calc(80px * var(--ui,1))}
+  #touch .on{filter:brightness(1.35)}
+  /* analógico: o toque em qualquer ponto da metade do lado do controle vira o centro da base e o pino segue o dedo */
+  #stick-zone{position:absolute;left:0;bottom:0;width:50%;height:100%;display:none;pointer-events:auto;touch-action:none}
+  body.analog #stick-zone{display:block}
+  body.analog #pad{display:none}
+  #stick{position:absolute;left:var(--l);bottom:calc(18px * var(--ui,1));width:calc(144px * var(--ui,1));height:calc(144px * var(--ui,1));box-sizing:border-box;border-radius:50%;background:rgba(43,32,56,.6);border:4px solid #0e0b14;box-shadow:inset 0 0 0 4px #6a4a8c}
+  #stick.moved{transform:translate(-50%,-50%)}
+  #knob{position:absolute;left:50%;top:50%;width:44%;height:44%;margin:-22% 0 0 -22%;box-sizing:border-box;border-radius:50%;background:#ffc23a;border:4px solid #0e0b14;box-shadow:0 4px 0 #0e0b14;transform:translate(var(--kx,0px),var(--ky,0px))}
+  #stick-zone.on #knob{background:#fff08a}
+  /* canhoto: direção na direita, bomba e poder na esquerda */
+  body.lefty #pad,body.lefty #stick{left:auto;right:var(--r)}
+  body.lefty #stick-zone{left:auto;right:0}
+  body.lefty #bomb{right:auto;left:var(--l)}
+  body.lefty #ability{right:auto;left:calc(var(--l) + 112px * var(--ui,1))}
   #msg{position:fixed;inset:0;display:grid;place-items:center;font:600 16px/1.4 system-ui;color:#bfc5cf;text-align:center;padding:24px}
   /* botão de instalar o app: só na tela de título */
   #instalar{position:fixed;top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));display:none;font:900 14px system-ui,sans-serif;padding:10px 14px;border-radius:10px;border:3px solid #0e0b14;background:#ffc23a;color:#2b2038;box-shadow:0 4px 0 #0e0b14;cursor:pointer}
   body.title #instalar:not([hidden]){display:block}
+  /* botão das configurações: no título, no menu e na escolha do graffiteiro */
+  #config-btn{position:fixed;top:max(12px,env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));display:none;font:900 14px system-ui,sans-serif;padding:10px 14px;border-radius:10px;border:3px solid #0e0b14;background:#6a4a8c;color:#f4f1e6;box-shadow:0 4px 0 #0e0b14;cursor:pointer}
+  body.menu #config-btn{display:block}
+  #config{position:fixed;inset:0;display:flex;padding:16px;box-sizing:border-box;background:rgba(14,11,20,.75);overflow:auto;touch-action:auto;z-index:5}
+  #config[hidden]{display:none}
+  #config .cfg-box{width:min(560px,100%);margin:auto}
+  .cfg-sec{margin:6px 0 0;color:#ffc23a;font-size:13px;letter-spacing:1px;text-align:left}
+  .cfg-row{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;text-align:left;color:#bfc5cf;font-size:12px}
+  @media (min-width:560px){.cfg-row{grid-template-columns:170px minmax(0,1fr);align-items:center}}
+  .cfg-opts{display:flex;gap:6px}.cfg-opts>*{flex:1;min-width:0}
+  #config button{font:900 13px system-ui,sans-serif;padding:9px 4px;border-radius:9px;border:3px solid #0e0b14;background:#1b1426;color:#bfc5cf;box-shadow:0 3px 0 #0e0b14;cursor:pointer}
+  #config button.on{background:#ffc23a;color:#2b2038}
+  #config button:active{transform:translateY(2px);box-shadow:0 1px 0 #0e0b14}
+  #config .sala-big{margin-top:6px;background:#c4f45c;color:#2b2038;font-size:16px;padding:12px}
   #instalar-ios{position:fixed;inset:0;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:16px;background:rgba(14,11,20,.75);touch-action:auto}
   #instalar-ios[hidden]{display:none}
   #instalar-ios div{width:min(340px,100%);box-sizing:border-box;background:#2b2038;border:3px solid #0e0b14;border-radius:14px;box-shadow:0 6px 0 #0e0b14;padding:18px;font:700 16px/1.45 system-ui,sans-serif;text-align:center}
@@ -56,18 +85,21 @@
   .sala-list li i{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;color:#8a8f9c;font-size:12px}
   .sala-list li.ok i{color:#c4f45c}
 </style>
-  <script type="module" crossorigin src="/assets/pixel-C6BOR6XT.js"></script>
+  <script type="module" crossorigin src="/assets/pixel-CioyceFB.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/audio-CMPNIqyJ.js">
 </head>
 <body>
 <canvas id="game" width="480" height="270" aria-label="TDG Bomb Arena"></canvas>
 <div id="touch" aria-hidden="true">
-  <img id="pad" src="./px/hud/btn-dpad.png" alt="">
-  <img id="ability" src="./px/hud/btn-mao.png" alt="">
-  <img id="bomb" src="./px/hud/btn-bomba.png" alt="">
+  <div id="pad" class="tb" data-art="btn-dpad"></div>
+  <div id="stick-zone"><div id="stick"><div id="knob"></div></div></div>
+  <div id="ability" class="tb" data-art="btn-mao"></div>
+  <div id="bomb" class="tb" data-art="btn-bomba"></div>
 </div>
 <div id="sala" hidden></div>
 <button id="instalar" hidden>INSTALAR APP</button>
+<button id="config-btn">CONFIG</button>
+<div id="config" hidden></div>
 <div id="instalar-ios" hidden><div><b>VIRAR APP NO IPHONE</b><br>1. Toque em <b>Compartilhar</b> (o quadrado com a seta pra cima)<br>2. Escolha <b>Adicionar à Tela de Início</b><br>3. Toque em <b>Adicionar</b><br><br>O TDG aparece na tela do celular igual um app.<br><small>(toque aqui para fechar)</small></div></div>
 <div id="msg">Carregando a arte…</div>
 </body>
