@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0e0b14">
+<title>TDG Bomb Arena</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/tdg-192.png">
+<link rel="apple-touch-icon" href="/icons/tdg-apple-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TDG Arena">
+<style>
+  html,body{margin:0;height:100%;background:#0e0b14;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+  body{display:grid;place-items:center;font-family:system-ui,sans-serif;color:#f4f1e6}
+  #game{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+  /* controles de toque: só no celular e só durante a partida */
+  #touch{position:fixed;inset:auto 0 0 0;height:var(--pad-h,180px);display:none;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
+  body.coarse.playing #touch{display:block}
+  #touch img{position:absolute;image-rendering:pixelated;pointer-events:auto;touch-action:none;-webkit-user-drag:none}
+  #pad{left:max(14px,env(safe-area-inset-left,0px));bottom:18px;width:144px;height:144px}
+  #bomb{right:max(18px,env(safe-area-inset-right,0px));bottom:26px;width:112px;height:112px}
+  #ability{right:max(130px,calc(env(safe-area-inset-right,0px) + 130px));bottom:96px;width:80px;height:80px}
+  #touch img.on{filter:brightness(1.35)}
+  #msg{position:fixed;inset:0;display:grid;place-items:center;font:600 16px/1.4 system-ui;color:#bfc5cf;text-align:center;padding:24px}
+  /* botão de instalar o app: só na tela de título */
+  #instalar{position:fixed;top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));display:none;font:900 14px system-ui,sans-serif;padding:10px 14px;border-radius:10px;border:3px solid #0e0b14;background:#ffc23a;color:#2b2038;box-shadow:0 4px 0 #0e0b14;cursor:pointer}
+  body.title #instalar:not([hidden]){display:block}
+  #instalar-ios{position:fixed;inset:0;display:grid;place-items:center;padding:16px;background:rgba(14,11,20,.75);touch-action:auto}
+  #instalar-ios[hidden]{display:none}
+  #instalar-ios div{width:min(340px,100%);box-sizing:border-box;background:#2b2038;border:3px solid #0e0b14;border-radius:14px;box-shadow:0 6px 0 #0e0b14;padding:18px;font:700 16px/1.45 system-ui,sans-serif;text-align:center}
+  #instalar-ios b{color:#ffc23a}
+  /* painel da sala online, por cima do menu */
+  #sala{position:fixed;inset:0;display:grid;place-items:center;padding:16px;background:rgba(14,11,20,.55);overflow:auto;touch-action:auto}
+  #sala[hidden]{display:none}
+  .sala-box{width:min(360px,100%);box-sizing:border-box;background:#2b2038;border:3px solid #0e0b14;border-radius:14px;box-shadow:0 6px 0 #0e0b14;padding:16px;display:grid;gap:10px;font:800 15px/1.2 system-ui,sans-serif;text-align:center}
+  .sala-box h2{margin:0;font-size:22px;color:#ffc23a;letter-spacing:1px}
+  .sala-code{color:#fff08a;letter-spacing:4px;word-break:break-all}
+  #sala #sala-code{text-transform:none}
+  .sala-sub{margin:0;color:#bfc5cf;font-weight:600}
+  .sala-note{margin:0;color:#ff5aa8;word-break:break-all}
+  #sala label{display:grid;gap:4px;color:#bfc5cf;font-size:12px;text-align:left}
+  #sala input{font:800 18px system-ui,sans-serif;padding:10px;border-radius:10px;border:3px solid #0e0b14;background:#f4f1e6;color:#2b2038;-webkit-user-select:text;user-select:text;min-width:0;text-transform:uppercase}
+  #sala button{font:900 16px system-ui,sans-serif;padding:12px;border-radius:10px;border:3px solid #0e0b14;background:#6a4a8c;color:#f4f1e6;box-shadow:0 4px 0 #0e0b14;cursor:pointer}
+  #sala button:active{transform:translateY(2px);box-shadow:0 2px 0 #0e0b14}
+  #sala button:disabled{opacity:.45}
+  #sala .sala-big{background:#ffc23a;color:#2b2038}
+  #sala .sala-big.on{background:#c4f45c}
+  #sala .sala-ghost{background:none;box-shadow:none;border-color:transparent;color:#bfc5cf}
+  .sala-row{display:flex;gap:8px}.sala-row>*{flex:1}
+  .sala-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+  .sala-list li{display:grid;grid-template-columns:1fr auto;text-align:left;background:#1b1426;border-radius:8px;padding:8px 10px}
+  .sala-list li span{grid-column:1;color:#8a8f9c;font-size:12px;font-weight:600}
+  .sala-list li i{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;color:#8a8f9c;font-size:12px}
+  .sala-list li.ok i{color:#c4f45c}
+</style>
+  <script type="module" crossorigin src="/assets/pixel-C6BOR6XT.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/audio-CMPNIqyJ.js">
+</head>
+<body>
+<canvas id="game" width="480" height="270" aria-label="TDG Bomb Arena"></canvas>
+<div id="touch" aria-hidden="true">
+  <img id="pad" src="./px/hud/btn-dpad.png" alt="">
+  <img id="ability" src="./px/hud/btn-mao.png" alt="">
+  <img id="bomb" src="./px/hud/btn-bomba.png" alt="">
+</div>
+<div id="sala" hidden></div>
+<button id="instalar" hidden>INSTALAR APP</button>
+<div id="instalar-ios" hidden><div><b>VIRAR APP NO IPHONE</b><br>1. Toque em <b>Compartilhar</b> (o quadrado com a seta pra cima)<br>2. Escolha <b>Adicionar à Tela de Início</b><br>3. Toque em <b>Adicionar</b><br><br>O TDG aparece na tela do celular igual um app.<br><small>(toque aqui para fechar)</small></div></div>
+<div id="msg">Carregando a arte…</div>
+</body>
+</html>

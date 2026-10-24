@@ -1,0 +1,29 @@
+{
+  "hd": 2,
+  "ceus": {
+    "marginal": {"file": "ceu-marginal.webp", "crop": [0, 0.89]},
+    "viaduto": {"file": "ceu-viaduto.webp", "crop": [0, 0.89]},
+    "industrial": {"file": "ceu-industrial.webp", "crop": [0, 0.89]},
+    "serra": {"file": "ceu-serra.webp", "crop": [0, 0.86]},
+    "avenida": {"file": "ceu-avenida.webp", "crop": [0, 0.9]}
+  },
+  "carros": {
+    "bauzinho": {"file": "carro-bauzinho.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "besouro": {"file": "carro-besouro.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "caminhao": {"file": "carro-caminhao.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "cunha": {"file": "carro-cunha.webp", "frames": 1, "corpo": 0.99},
+    "esporte": {"file": "carro-esporte.webp", "frames": 1, "corpo": 0.99},
+    "gotinha": {"file": "carro-gotinha.webp", "frames": 1, "corpo": 0.99},
+    "italiano": {"file": "carro-italiano.webp", "frames": 1, "corpo": 0.99},
+    "jipe": {"file": "carro-jipe.webp", "frames": 1, "corpo": 0.99},
+    "onibus": {"file": "carro-onibus.webp", "frames": 1, "corpo": 0.99},
+    "opala": {"file": "carro-opala.webp", "frames": 1, "corpo": 0.99},
+    "paoforma": {"file": "carro-paoforma.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "pulga": {"file": "carro-pulga.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "quadrado": {"file": "carro-quadrado.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "toscana": {"file": "carro-toscana.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "tubarao": {"file": "carro-tubarao.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "uninho": {"file": "carro-uninho.webp", "frames": 1, "corpo": 0.99, "mag": true},
+    "viatura": {"file": "carro-viatura.webp", "frames": 1, "corpo": 0.99}
+  }
+}
