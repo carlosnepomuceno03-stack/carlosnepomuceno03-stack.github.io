@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.carlosnepomuceno03_stack.twa",
+        "sha256_cert_fingerprints": ["DB:02:E9:15:54:1D:16:04:AD:31:0A:5E:EF:7A:DF:15:63:98:3A:91:47:1A:2E:5A:AB:C0:8E:F8:B6:31:B3:52"]
+      }
+    }]
