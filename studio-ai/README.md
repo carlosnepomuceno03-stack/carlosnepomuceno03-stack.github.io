@@ -51,6 +51,8 @@ No app: Início → **Produção** → Entrar (desenvolvimento) → Criar evento
 
 Exportar o evento fictício direto pelo motor (sem API): `npm run export:demo -- ./saida`
 
+Guias: [hospedagem da API](docs/06-hospedagem.md) · [testar no iPhone](docs/07-iphone.md) · [Supabase Lumpli Dev](docs/08-supabase.md) · [demonstração Noite Neon](demo/noite-neon/README.md)
+
 ## Testes
 
 ```bash

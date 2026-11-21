@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
+import { SUPABASE_CONFIGURED, supabase } from './supabase';
 
 /**
  * Cliente da API do Lumpli. O app só conhece a URL pública da API e o token de sessão do usuário —
@@ -63,6 +64,10 @@ type Ctx = {
   ready: boolean;
   authMode: 'dev' | 'supabase' | null;
   signInDev: () => Promise<void>;
+  /** Supabase Auth: envia código de 6 dígitos por e-mail; depois `verifyEmailCode`. */
+  sendEmailCode: (email: string) => Promise<void>;
+  verifyEmailCode: (email: string, code: string) => Promise<void>;
+  supabaseEnabled: boolean;
   signOut: () => Promise<void>;
   request: <T>(path: string, init?: { method?: string; body?: unknown }) => Promise<T>;
   upload: <T>(path: string, bytes: ArrayBuffer, headers: Record<string, string>) => Promise<T>;
@@ -102,8 +107,40 @@ export function ApiProvider({ children }: { children: ReactNode }) {
     setSession(next);
   }, []);
 
+  const sendEmailCode = useCallback(async (email: string) => {
+    const { error } = await supabase().auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+    if (error) throw new ApiError(400, 'auth', error.message);
+  }, []);
+
+  const verifyEmailCode = useCallback(async (email: string, code: string) => {
+    const { data, error } = await supabase().auth.verifyOtp({ email, token: code, type: 'email' });
+    if (error || !data.session) throw new ApiError(400, 'auth', error?.message ?? 'Código inválido');
+    const me = await rawRequest<{ organizationId: string }>('/v1/me', { method: 'POST', token: data.session.access_token });
+    // A sessão do Supabase (com renovação automática) fica no armazenamento seguro do próprio cliente.
+    setSession({ accessToken: data.session.access_token, userId: data.session.user.id, organizationId: me.organizationId, mode: 'supabase' });
+  }, []);
+
+  // Renovação automática: o token de acesso do Supabase expira em ~1 h.
+  useEffect(() => {
+    if (!SUPABASE_CONFIGURED) return;
+    const { data } = supabase().auth.onAuthStateChange((_event, s) => {
+      setSession((prev) => (prev && s ? { ...prev, accessToken: s.access_token } : prev && prev.mode === 'supabase' && !s ? null : prev));
+    });
+    supabase().auth.getSession().then(async ({ data: d }) => {
+      if (!d.session) return;
+      try {
+        const me = await rawRequest<{ organizationId: string }>('/v1/me', { method: 'POST', token: d.session.access_token });
+        setSession({ accessToken: d.session.access_token, userId: d.session.user.id, organizationId: me.organizationId, mode: 'supabase' });
+      } catch {
+        // sem servidor: continua só no aparelho
+      }
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
+
   const signOut = useCallback(async () => {
     await tokenStore.set(null);
+    if (SUPABASE_CONFIGURED) await supabase().auth.signOut().catch(() => {});
     setSession(null);
   }, []);
 
@@ -113,8 +150,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
   const upload = useCallback(<T,>(path: string, bytes: ArrayBuffer, headers: Record<string, string>) =>
     rawRequest<T>(path, { method: 'POST', token: session?.accessToken, binary: { bytes, headers } }), [session]);
 
-  const value = useMemo<Ctx>(() => ({ configured: !!API_URL, session, ready, authMode, signInDev, signOut, request, upload }),
-    [session, ready, authMode, signInDev, signOut, request, upload]);
+  const value = useMemo<Ctx>(() => ({ configured: !!API_URL, session, ready, authMode, signInDev, sendEmailCode, verifyEmailCode, supabaseEnabled: SUPABASE_CONFIGURED, signOut, request, upload }),
+    [session, ready, authMode, signInDev, sendEmailCode, verifyEmailCode, signOut, request, upload]);
   return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
 }
 

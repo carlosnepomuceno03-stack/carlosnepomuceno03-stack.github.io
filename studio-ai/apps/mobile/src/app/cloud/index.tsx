@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Button, Card, DemoBanner, EmptyState, Row, Screen, Text } from '@/components/ui';
+import { Button, Card, DemoBanner, EmptyState, Row, Screen, Text, TextField } from '@/components/ui';
 import { API_URL, ApiError, useApi } from '@/data/api';
 import { useProjects } from '@/data/projects';
 import { useThemeColors } from '@/theme/theme';
@@ -13,6 +13,9 @@ export default function CloudHome() {
   const { colors } = useThemeColors();
   const { syncNow, projects } = useProjects();
   const [busy, setBusy] = useState(false);
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const run = async (fn: () => Promise<void>) => {
@@ -51,8 +54,27 @@ export default function CloudHome() {
               <DemoBanner title="Login de desenvolvimento" message="Este servidor está em modo local de desenvolvimento. A sessão é criada pelo próprio servidor, sem senha." />
               <Button label="Entrar (desenvolvimento)" icon="log-in-outline" loading={busy} onPress={() => run(api.signInDev)} />
             </>
+          ) : api.supabaseEnabled ? (
+            <>
+              <TextField label="E-mail" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" autoComplete="email" />
+              {codeSent && <TextField label="Código recebido por e-mail" value={code} onChangeText={setCode} keyboardType="number-pad" maxLength={8} />}
+              <Button
+                label={codeSent ? 'Entrar' : 'Enviar código'}
+                icon="mail-outline"
+                loading={busy}
+                disabled={!email.includes('@') || (codeSent && code.length < 6)}
+                onPress={() => run(async () => {
+                  if (!codeSent) {
+                    await api.sendEmailCode(email.trim());
+                    setCodeSent(true);
+                  } else {
+                    await api.verifyEmailCode(email.trim(), code.trim());
+                  }
+                })}
+              />
+            </>
           ) : (
-            <Text variant="caption">Login com conta Lumpli (Supabase Auth) será habilitado assim que o projeto Supabase estiver conectado.</Text>
+            <Text variant="caption">Login com conta Lumpli (Supabase Auth) será habilitado quando o app for configurado com o projeto Supabase.</Text>
           )}
         </Card>
       ) : (

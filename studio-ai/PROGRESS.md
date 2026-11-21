@@ -135,3 +135,40 @@ real ainda **não** foi executado.
 
 ## Próxima etapa recomendada
 Conectar o Supabase e concluir a infraestrutura da 0.2 (itens 1–3 acima); depois Etapa 0.3 (IA de referências e briefing).
+
+---
+
+## Etapa 0.2.1 — Estabilização (22/11/2026)
+
+**Feito e testado**
+| Item | Entrega | Como foi comprovado |
+|---|---|---|
+| Segurança | **Falha corrigida**: com os privilégios padrão do Supabase, qualquer usuário logado poderia chamar as funções de backend passando outro `p_user` (aprovar ou registrar arquivo em nome de terceiros). A migração 3 revoga o acesso. | O banco de teste passou a reproduzir os privilégios padrão do Supabase; o teste falhou antes da correção e passa depois |
+| Supabase por HTTPS | A API usa uma camada única de funções SQL (RPC) com dois drivers: `postgres` e `supabase-rest` (PostgREST + Storage, só HTTPS) | Fluxo completo da API no driver SQL; driver REST com testes de contrato (cabeçalhos, chaves, erros) |
+| Lista única de projetos | Fila de alterações idempotente + reconciliação (servidor é a fonte da verdade); projetos da 0.1 são migrados e enviados no primeiro login | 7 testes de reconciliação; 6 de RPC no banco; E2E: criar offline → entrar → conferido **no PostgreSQL** → abrir produção → excluir (exclusão lógica conferida no banco) |
+| Materiais imutáveis (item 8) | Trigger impede alterar arquivo, revisão ou relatório de material gerado; exclusão proibida | 4 testes de API: nova revisão + nova aprovação + nova exportação + restauração não alteram nenhum material anterior (bytes no Storage idênticos); a v1 continua idêntica e **os PNGs da v1 são reproduzidos byte a byte** a partir dos dados preservados |
+| Hospedagem | Dockerfile, `render.yaml`, `fly.toml`, `/ready`, limites de uso por usuário, `x-request-id`, guia de custos | **Imagem construída e executada**: container de produção + PostgreSQL 16 real, fluxo HTTP completo, 0 erros e nenhum segredo nos logs |
+| iPhone | `eas.json` (4 perfis), `expo-dev-client`, bundle id `app.lumpli.mobile`, permissões revisadas (só Fotos, em português) | `expo prebuild -p ios` gerou o projeto Xcode com a configuração correta |
+| Login real | Supabase Auth por código de e-mail; sessão no Keychain/Keystore com renovação automática | Tipos verificados. **Não testado** (sem projeto Supabase) |
+| Demonstração | `demo/noite-neon/` (5 PNGs, comparação, relatório) + página de comparação publicada | Revisão visual minha; 10 verificações sem falha em todos os formatos |
+
+**Suítes**: shared 23 · banco 28 · motor 33 · API 29 · E2E etapa 1: 12/12 · E2E produção + sincronização: 16/16 ·
+bundle Android ✅ · typecheck ✅ · container de produção ✅.
+
+**Bloqueios (dependem de você)**
+1. **Conector Supabase não conectado** → projeto Lumpli Dev não criado; os testes reais na nuvem (autenticação,
+   Storage, exportação e restauração) **não foram executados**. Roteiro pronto em `docs/08-supabase.md`.
+2. **Rede deste ambiente** bloqueia `*.supabase.co`, `api.expo.dev`, `render.com`, `fly.io`: quando o projeto existir,
+   vou pedir a liberação só do host do Lumpli Dev.
+3. **Hospedagem da API**: escolha e autorização (opções em `docs/06-hospedagem.md`; Render Free custa R$ 0).
+4. **iPhone via EAS**: conta Expo + Apple Developer Program (US$ 99/ano). Sem isso, use o Expo Go (gratuito).
+
+**Depende de validação no dispositivo real**
+- Abrir no iPhone (Expo Go SDK 58 ou development build) e navegar pelas 5 abas; safe areas e notch.
+- Seletor de fotos do iOS e de arquivos de fonte (o upload foi testado na web, com o seletor de arquivos do navegador).
+- Gestos de arrastar no editor com o dedo (testado com mouse/toque simulado no Chromium).
+- Armazenamento seguro do token (Keychain) e persistência após fechar o app (na web o token fica em memória).
+- Abrir e compartilhar o PNG exportado pelo iOS.
+- Haptics, animações da Sala de Produção com "Reduzir movimento" ativado, VoiceOver.
+- Desempenho da pré-visualização na rede móvel (cada edição chama o renderizador no servidor).
+- Login por código de e-mail (depende também do Supabase).

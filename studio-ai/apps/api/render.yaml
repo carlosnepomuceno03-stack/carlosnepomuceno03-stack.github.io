@@ -1,0 +1,27 @@
+# Blueprint do Render (opção gratuita). NÃO cria nada sozinho: só é usado se você importar no painel do Render.
+# Segredos marcados com sync:false são digitados no painel (cofre do Render), nunca no repositório.
+services:
+  - type: web
+    name: lumpli-api-dev
+    runtime: docker
+    plan: free
+    rootDir: studio-ai
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /ready
+    autoDeploy: false
+    envVars:
+      - key: DATA_DRIVER
+        value: supabase-rest
+      - key: STORAGE_DRIVER
+        value: supabase
+      - key: STORAGE_BUCKET
+        value: studio-private
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: ""

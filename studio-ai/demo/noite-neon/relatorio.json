@@ -1,0 +1,542 @@
+{
+  "rendererVersion": "graphics-core/0.2.0+resvg-2.6.2",
+  "contract": {
+    "id": "demo-contract",
+    "projectId": "demo-project",
+    "revision": 1,
+    "parentRevision": null,
+    "sourceDocumentId": "demo-master",
+    "sourceDocumentRevision": 1,
+    "protectedAssets": [
+      {
+        "assetId": "demo-photo",
+        "sha256": "f0d8d7834d6ab4b7499d2fe6051a4ffd53f634eab8b289258900f9476aeac239",
+        "kind": "photo",
+        "required": false,
+        "allowedTransforms": [
+          "position",
+          "uniform_scale",
+          "crop",
+          "opacity"
+        ]
+      },
+      {
+        "assetId": "demo-logo",
+        "sha256": "f384681341cb4d7ce8c426cfae13d6e52306771bec9efa3ae3aac62be67d7266",
+        "kind": "logo",
+        "required": true,
+        "allowedTransforms": [
+          "position",
+          "uniform_scale",
+          "opacity"
+        ]
+      },
+      {
+        "assetId": "demo-sponsor",
+        "sha256": "20a8d4911ef22535cde4043bdbaf56a0d63043442ca166375c82e85a6229a9d6",
+        "kind": "logo",
+        "required": true,
+        "allowedTransforms": [
+          "position",
+          "uniform_scale",
+          "opacity"
+        ]
+      },
+      {
+        "assetId": "demo-anton",
+        "sha256": "97aae409210d255fb3b92f18c8af2ed14941e10a1ee134a35bb91f52086de1d0",
+        "kind": "font",
+        "required": false,
+        "allowedTransforms": []
+      },
+      {
+        "assetId": "demo-inter",
+        "sha256": "a414b48aa577ef2c62ebb135341ddeef33ee26a4f5dc9f787f93c1aab08ebb50",
+        "kind": "font",
+        "required": false,
+        "allowedTransforms": []
+      },
+      {
+        "assetId": "demo-interBold",
+        "sha256": "fbe825cbfc749317f57a1433d3905aa9d3f388732fd29b8e8a36f34845e3bc3e",
+        "kind": "font",
+        "required": false,
+        "allowedTransforms": []
+      }
+    ],
+    "fonts": [
+      {
+        "family": "Anton",
+        "weight": 400,
+        "style": "normal",
+        "sha256": "97aae409210d255fb3b92f18c8af2ed14941e10a1ee134a35bb91f52086de1d0"
+      },
+      {
+        "family": "Inter",
+        "weight": 400,
+        "style": "normal",
+        "sha256": "a414b48aa577ef2c62ebb135341ddeef33ee26a4f5dc9f787f93c1aab08ebb50"
+      },
+      {
+        "family": "Inter",
+        "weight": 700,
+        "style": "normal",
+        "sha256": "fbe825cbfc749317f57a1433d3905aa9d3f388732fd29b8e8a36f34845e3bc3e"
+      }
+    ],
+    "colors": [
+      {
+        "name": "Noite",
+        "hex": "#0B0A14"
+      },
+      {
+        "name": "Neon ciano",
+        "hex": "#36E0FF"
+      },
+      {
+        "name": "Neon rosa",
+        "hex": "#FF3FA4"
+      }
+    ],
+    "spacingUnit": 0.007407407407407408,
+    "safeMarginRatio": 0.05,
+    "elements": [
+      {
+        "layerId": "bg",
+        "role": "background",
+        "priority": 9,
+        "anchor": {
+          "horizontal": "left",
+          "vertical": "top"
+        },
+        "locked": true,
+        "minScale": 0.1,
+        "maxScale": 10,
+        "allowCrop": true
+      },
+      {
+        "layerId": "photo",
+        "role": "photo",
+        "priority": 2,
+        "anchor": {
+          "horizontal": "left",
+          "vertical": "top"
+        },
+        "locked": false,
+        "minScale": 0.3,
+        "maxScale": 3,
+        "allowCrop": true
+      },
+      {
+        "layerId": "logo",
+        "role": "logo",
+        "priority": 1,
+        "anchor": {
+          "horizontal": "center",
+          "vertical": "top"
+        },
+        "locked": true,
+        "minScale": 0.5,
+        "maxScale": 2,
+        "allowCrop": false
+      },
+      {
+        "layerId": "divider",
+        "role": "decoration",
+        "priority": 8,
+        "anchor": {
+          "horizontal": "left",
+          "vertical": "top"
+        },
+        "locked": false,
+        "minScale": 0.3,
+        "maxScale": 3,
+        "allowCrop": false
+      },
+      {
+        "layerId": "title",
+        "role": "headline",
+        "priority": 1,
+        "anchor": {
+          "horizontal": "center",
+          "vertical": "top"
+        },
+        "locked": true,
+        "minScale": 0.4,
+        "maxScale": 2.5,
+        "allowCrop": false,
+        "approvedText": "NOITE NEON"
+      },
+      {
+        "layerId": "subtitle",
+        "role": "subheadline",
+        "priority": 3,
+        "anchor": {
+          "horizontal": "center",
+          "vertical": "top"
+        },
+        "locked": false,
+        "minScale": 0.4,
+        "maxScale": 2.5,
+        "allowCrop": false
+      },
+      {
+        "layerId": "date",
+        "role": "info",
+        "priority": 1,
+        "anchor": {
+          "horizontal": "center",
+          "vertical": "top"
+        },
+        "locked": false,
+        "minScale": 0.4,
+        "maxScale": 2.5,
+        "allowCrop": false,
+        "approvedText": "SÁB 20.12 · 22H"
+      },
+      {
+        "layerId": "venue",
+        "role": "info",
+        "priority": 2,
+        "anchor": {
+          "horizontal": "center",
+          "vertical": "top"
+        },
+        "locked": false,
+        "minScale": 0.4,
+        "maxScale": 2.5,
+        "allowCrop": false,
+        "approvedText": "ARENA DEMO — SÃO PAULO"
+      },
+      {
+        "layerId": "cta_bg",
+        "role": "cta",
+        "priority": 6,
+        "anchor": {
+          "horizontal": "left",
+          "vertical": "top"
+        },
+        "locked": false,
+        "minScale": 0.4,
+        "maxScale": 2.5,
+        "allowCrop": false
+      },
+      {
+        "layerId": "cta_text",
+        "role": "cta",
+        "priority": 5,
+        "anchor": {
+          "horizontal": "center",
+          "vertical": "top"
+        },
+        "locked": false,
+        "minScale": 0.4,
+        "maxScale": 2.5,
+        "allowCrop": false,
+        "approvedText": "INGRESSOS NA SYMPLA"
+      },
+      {
+        "layerId": "sponsor",
+        "role": "logo",
+        "priority": 4,
+        "anchor": {
+          "horizontal": "left",
+          "vertical": "top"
+        },
+        "locked": false,
+        "minScale": 0.5,
+        "maxScale": 2.5,
+        "allowCrop": false
+      }
+    ],
+    "aspectRules": [
+      {
+        "aspect": "tall",
+        "optionalLayerIds": [],
+        "arrangement": "stack",
+        "zoneTargets": {
+          "hero": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 0.6,
+            "bleed": true,
+            "fit": "cover",
+            "align": {
+              "horizontal": "center",
+              "vertical": "middle"
+            }
+          },
+          "brand": {
+            "x": 0.2,
+            "y": 0,
+            "width": 0.6,
+            "height": 0.11,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "center",
+              "vertical": "top"
+            }
+          },
+          "info": {
+            "x": 0,
+            "y": 0.56,
+            "width": 1,
+            "height": 0.36,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "center",
+              "vertical": "middle"
+            }
+          },
+          "sponsors": {
+            "x": 0.35,
+            "y": 0.94,
+            "width": 0.3,
+            "height": 0.06,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "center",
+              "vertical": "middle"
+            }
+          }
+        }
+      },
+      {
+        "aspect": "portrait",
+        "optionalLayerIds": [],
+        "arrangement": "stack",
+        "zoneTargets": {
+          "hero": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 0.62,
+            "bleed": true,
+            "fit": "cover",
+            "align": {
+              "horizontal": "center",
+              "vertical": "middle"
+            }
+          },
+          "brand": {
+            "x": 0.28,
+            "y": 0,
+            "width": 0.44,
+            "height": 0.12,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "center",
+              "vertical": "top"
+            }
+          },
+          "info": {
+            "x": 0,
+            "y": 0.55,
+            "width": 1,
+            "height": 0.37,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "center",
+              "vertical": "middle"
+            }
+          },
+          "sponsors": {
+            "x": 0.38,
+            "y": 0.94,
+            "width": 0.24,
+            "height": 0.06,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "center",
+              "vertical": "middle"
+            }
+          }
+        }
+      },
+      {
+        "aspect": "wide",
+        "optionalLayerIds": [],
+        "arrangement": "side_by_side",
+        "zoneTargets": {
+          "hero": {
+            "x": 0.52,
+            "y": 0,
+            "width": 0.48,
+            "height": 1,
+            "bleed": true,
+            "fit": "cover",
+            "align": {
+              "horizontal": "center",
+              "vertical": "middle"
+            }
+          },
+          "brand": {
+            "x": 0,
+            "y": 0,
+            "width": 0.4,
+            "height": 0.2,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "left",
+              "vertical": "top"
+            }
+          },
+          "info": {
+            "x": 0,
+            "y": 0.24,
+            "width": 0.46,
+            "height": 0.62,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "left",
+              "vertical": "middle"
+            }
+          },
+          "sponsors": {
+            "x": 0,
+            "y": 0.9,
+            "width": 0.16,
+            "height": 0.1,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "left",
+              "vertical": "bottom"
+            }
+          }
+        }
+      },
+      {
+        "aspect": "landscape",
+        "optionalLayerIds": [],
+        "arrangement": "side_by_side",
+        "zoneTargets": {
+          "hero": {
+            "x": 0.5,
+            "y": 0,
+            "width": 0.5,
+            "height": 1,
+            "bleed": true,
+            "fit": "cover",
+            "align": {
+              "horizontal": "center",
+              "vertical": "middle"
+            }
+          },
+          "brand": {
+            "x": 0,
+            "y": 0,
+            "width": 0.42,
+            "height": 0.2,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "left",
+              "vertical": "top"
+            }
+          },
+          "info": {
+            "x": 0,
+            "y": 0.25,
+            "width": 0.46,
+            "height": 0.6,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "left",
+              "vertical": "middle"
+            }
+          },
+          "sponsors": {
+            "x": 0,
+            "y": 0.9,
+            "width": 0.16,
+            "height": 0.1,
+            "bleed": false,
+            "fit": "contain",
+            "align": {
+              "horizontal": "left",
+              "vertical": "bottom"
+            }
+          }
+        }
+      }
+    ],
+    "approvals": [
+      {
+        "approvedBy": "demo-user",
+        "approvedAt": "2026-11-21T12:00:00.000Z"
+      }
+    ],
+    "createdAt": "2026-11-21T12:00:00.000Z"
+  },
+  "summary": [
+    {
+      "file": "master-1080x1350.png",
+      "sha256": "5342e7720204500ae718f16d5d22e60603604f561192da157d5d91cf807395dd",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "file": "story-1080x1920.png",
+      "status": "ready_for_review",
+      "sha256": "0569de02f9c4874d0b87e998ca5cabeba4bfbc15a7355c39eeaf8c9aa21c7e2b",
+      "issues": [],
+      "quality": [],
+      "changes": [
+        "Artista (fictício): preenchimento com recorte proporcional em 1080×1152",
+        "Zona Marca: escala 1.155",
+        "Zona Informações: escala 0.875",
+        "Zona Patrocínio: escala 1.680"
+      ]
+    },
+    {
+      "file": "feed-1080x1440.png",
+      "status": "ready_for_review",
+      "sha256": "89a14d0b915d4bf76d87b5741f394d38d4da12e78d2090bac76a7d5c9426443e",
+      "issues": [],
+      "quality": [],
+      "changes": [
+        "Artista (fictício): preenchimento com recorte proporcional em 1080×893",
+        "Zona Marca: escala 0.984",
+        "Zona Informações: escala 0.992",
+        "Zona Patrocínio: escala 1.523"
+      ]
+    },
+    {
+      "file": "sympla-1600x838.png",
+      "status": "ready_for_review",
+      "sha256": "9f86997b96eeeee034f06b7501bbfce3682d975d73dad5e90b135c4e0cfc5d3e",
+      "issues": [],
+      "quality": [],
+      "changes": [
+        "Artista (fictício): preenchimento com recorte proporcional em 768×838",
+        "Zona Marca: escala 0.927",
+        "Zona Informações: escala 0.721",
+        "Zona Patrocínio: escala 1.484"
+      ]
+    },
+    {
+      "file": "telao-1920x1080.png",
+      "status": "ready_for_review",
+      "sha256": "c3a017657d406cc770078d98833d8ee9bb0494237fc6d0c9c1d122f65271dffc",
+      "issues": [],
+      "quality": [],
+      "changes": [
+        "Artista (fictício): preenchimento com recorte proporcional em 960×1080",
+        "Zona Marca: escala 1.190",
+        "Zona Informações: escala 0.859",
+        "Zona Patrocínio: escala 1.904"
+      ]
+    }
+  ]
+}
