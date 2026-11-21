@@ -1,0 +1,27 @@
+{
+  "name": "@studio-ai/graphics-core",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Motor gráfico determinístico: documento → SVG → PNG, adaptação por regras, contrato de identidade e verificações",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "export:demo": "tsx scripts/export-demo.ts"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@studio-ai/shared": "*",
+    "opentype.js": "^2.0.0"
+  },
+  "devDependencies": {
+    "@expo-google-fonts/anton": "^0.4.2",
+    "@expo-google-fonts/inter": "^0.4.2",
+    "@types/node": "^22.10.0",
+    "sharp": "^0.35.5",
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.1",
+    "tsx": "^4.20.0"
+  }
+}
