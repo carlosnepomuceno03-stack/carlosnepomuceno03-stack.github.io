@@ -1,8 +1,8 @@
 {
-  "name": "studio-ai",
+  "name": "lumpli",
   "private": true,
-  "version": "0.1.0",
-  "description": "Studio AI — estúdio criativo mobile multiagente (monorepo)",
+  "version": "0.2.0",
+  "description": "Lumpli — estúdio criativo mobile multiagente (monorepo)",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -11,7 +11,9 @@
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "mobile": "npm run start --workspace apps/mobile",
-    "test:e2e": "npm run test:e2e --workspace apps/mobile"
+    "test:e2e": "npm run test:e2e --workspace apps/mobile",
+    "api:local": "scripts/dev-local.sh",
+    "export:demo": "npm run export:demo --workspace packages/graphics-core --"
   },
   "engines": {
     "node": ">=20"

@@ -18,6 +18,7 @@ const app = buildApp({
   verify: createVerifier({ supabaseUrl: config.SUPABASE_URL, jwtSecret: config.SUPABASE_JWT_SECRET }),
   demoDir: DEMO_EVENT_DIR,
   logger: true,
+  devAuth: config.DEV_AUTH === 'true' ? { jwtSecret: config.SUPABASE_JWT_SECRET! } : undefined,
   corsOrigins: config.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean),
 });
 

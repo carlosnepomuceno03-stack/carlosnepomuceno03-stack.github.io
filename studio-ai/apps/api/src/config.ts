@@ -20,6 +20,8 @@ const EnvSchema = z.object({
   LOCAL_URL_SECRET: z.string().min(16).optional(),
   PUBLIC_BASE_URL: z.string().url().default('http://localhost:8787'),
   CORS_ORIGINS: z.string().default(''),
+  /** Login de desenvolvimento (somente com STORAGE_DRIVER=local). */
+  DEV_AUTH: z.enum(['true', 'false']).default('false'),
 });
 export type Config = z.infer<typeof EnvSchema>;
 
@@ -33,6 +35,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const c = parsed.data;
   if (c.STORAGE_DRIVER === 'supabase' && (!c.SUPABASE_URL || !c.SUPABASE_SERVICE_ROLE_KEY)) {
     throw new Error('STORAGE_DRIVER=supabase exige SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY');
+  }
+  if (c.DEV_AUTH === 'true' && (c.STORAGE_DRIVER !== 'local' || !c.SUPABASE_JWT_SECRET)) {
+    throw new Error('DEV_AUTH só é permitido em desenvolvimento local (STORAGE_DRIVER=local com segredo JWT local)');
   }
   if (!c.SUPABASE_JWT_SECRET && !c.SUPABASE_URL) throw new Error('Defina SUPABASE_URL (JWKS) ou SUPABASE_JWT_SECRET');
   return c;

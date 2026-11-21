@@ -59,6 +59,9 @@ afterAll(async () => {
 });
 
 describe('autenticação', () => {
+  it('informa o modo de autenticação', async () => {
+    expect((await call('GET', '/v1/auth/mode', null)).json.mode).toBe('supabase');
+  });
   it('rejeita requisição sem token, com token inválido e com assinatura errada', async () => {
     expect((await call('GET', '/v1/projects', null)).status).toBe(401);
     expect((await app.inject({ method: 'GET', url: '/v1/projects', headers: { authorization: 'Bearer abc' } })).statusCode).toBe(401);
@@ -144,6 +147,20 @@ describe('fluxo completo da Etapa 0.2 com o evento fictício', () => {
     const r = await call('POST', `/v1/documents/${documentId}/revisions`, ALICE, { baseRevision: doc.headRevision, document: bad });
     expect(r.status).toBe(422);
     expect(JSON.stringify(r.json.error.details)).toContain('missing_font');
+  });
+
+  it('lista documentos e gera pré-visualização fiel sem gravar nada', async () => {
+    const docs = (await call('GET', `/v1/projects/${projectId}/documents`, ALICE)).json.items;
+    expect(docs).toHaveLength(1);
+    const doc = (await call('GET', `/v1/documents/${documentId}`, ALICE)).json;
+    const before = readdirSync(storageDir, { recursive: true }).length;
+    const prev = await call('POST', `/v1/documents/${documentId}/preview`, ALICE, { document: doc.document, width: 360 });
+    expect(prev.status).toBe(200);
+    const png = Buffer.from(prev.json.image.split(',')[1], 'base64');
+    expect(readPngInfo(new Uint8Array(png))).toMatchObject({ width: 360, height: 450 });
+    expect(prev.json.textBounds.title.width).toBeGreaterThan(100);
+    expect(readdirSync(storageDir, { recursive: true }).length).toBe(before);
+    expect((await call('POST', `/v1/documents/${documentId}/preview`, BOB, { document: doc.document })).status).toBe(404);
   });
 
   it('não exporta antes da aprovação', async () => {

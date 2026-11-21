@@ -1,15 +1,18 @@
-# Studio AI
+# Lumpli
 
 Estúdio criativo mobile multiagente para produção gráfica profissional (iOS e Android).
 A IA propõe, o motor gráfico determinístico executa e o usuário aprova. Layouts aprovados nunca são redesenhados por IA.
 
-> Status: **Etapa 0 concluída · Etapa 1 (v0.1) implementada**. Veja [PROGRESS.md](PROGRESS.md).
+> Status: **Etapas 0, 0.1 e 0.2 implementadas** (0.2 validada localmente; Supabase pendente). Veja [PROGRESS.md](PROGRESS.md).
 
 ## Estrutura
 
 ```
 studio-ai/
-├── apps/mobile          App Expo (SDK 58) — Etapa 1
+├── apps/mobile          App Expo (SDK 58): navegação, Sala de Produção, Produção, editor
+├── apps/api             API (Fastify): auth Supabase, uploads com hash, versões, aprovação, exportação
+├── packages/graphics-core  Motor gráfico determinístico (render, adaptação, verificações)
+├── fixtures/demo-event  Evento fictício "Noite Neon" (arquivos sintéticos + fontes OFL)
 ├── packages/shared      Esquemas zod: documento gráfico v1, identidade visual, domínio, agentes, contratos de API
 ├── packages/db          Testes da migração SQL em Postgres embutido (PGlite)
 ├── supabase/migrations  Esquema do banco com RLS
@@ -35,6 +38,18 @@ npx expo start --web        # navegador
 ```
 
 Nenhuma variável de ambiente é necessária na Etapa 1 (dados ficam no aparelho). Veja `.env.example` para as etapas seguintes.
+
+## Ambiente local completo (sem Supabase)
+
+```bash
+# Postgres 15+ local e um banco vazio; segredos são gerados pelo script a cada execução
+DATABASE_URL=postgres://usuario:senha@127.0.0.1:5432/lumpli_dev npm run api:local
+# em outro terminal (no celular, troque 127.0.0.1 pelo IP da máquina na rede):
+EXPO_PUBLIC_API_URL=http://127.0.0.1:8787 npm run mobile
+```
+No app: Início → **Produção** → Entrar (desenvolvimento) → Criar evento fictício → abrir o layout no editor.
+
+Exportar o evento fictício direto pelo motor (sem API): `npm run export:demo -- ./saida`
 
 ## Testes
 

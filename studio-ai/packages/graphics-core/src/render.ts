@@ -217,3 +217,17 @@ export async function renderDocument(doc: GraphicDocument, source: AssetSource):
   }
   return { png, sha256: sha256(png), width: info.width, height: info.height, svg, rendererVersion: RENDERER_VERSION, warnings, context: ctx };
 }
+
+/**
+ * Pré-visualização para o editor: MESMO pipeline da exportação (fontes do projeto, hashes conferidos),
+ * reduzida para `width` px. Não é um arquivo de entrega.
+ */
+export async function renderPreview(doc: GraphicDocument, source: AssetSource, width: number): Promise<{ png: Uint8Array; warnings: RenderIssue[]; textBounds: Record<string, { x: number; y: number; width: number; height: number }> }> {
+  const validated = validateDocument(doc);
+  if (!validated.ok) throw new RenderError(validated.issues);
+  const ctx = await prepareRender(validated.document, source);
+  const svg = documentToSvg(validated.document, ctx);
+  const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: Math.max(64, Math.min(2048, Math.round(width))) }, font: { loadSystemFonts: false }, background: 'rgba(0,0,0,0)' });
+  const textBounds = Object.fromEntries([...ctx.textLayouts].map(([id, l]) => [id, l.bounds]));
+  return { png: new Uint8Array(resvg.render().asPng()), warnings: validated.issues, textBounds };
+}

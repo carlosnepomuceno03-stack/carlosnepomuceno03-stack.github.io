@@ -4,6 +4,8 @@ import {
   buildDemoMaster,
   produceAdaptation,
   renderDocument,
+  renderPreview,
+  RenderError,
   sha256,
   type AssetSource,
 } from '@studio-ai/graphics-core';
@@ -35,6 +37,11 @@ export type AppDeps = {
   demoDir?: string;
   logger?: boolean;
   corsOrigins?: string[];
+  /**
+   * SOMENTE DESENVOLVIMENTO LOCAL: emite sessões para testar o app sem Supabase Auth.
+   * O servidor se recusa a iniciar com isso ativo quando o Storage é o Supabase.
+   */
+  devAuth?: { jwtSecret: string };
 };
 
 class HttpError extends Error {
@@ -216,6 +223,34 @@ export function buildApp(deps: AppDeps) {
     return { id: docId, ...saved };
   });
 
+  app.get('/v1/projects/:projectId/documents', async (req) => {
+    const userId = await auth(req);
+    const { projectId } = z.object({ projectId: UUID }).parse(req.params);
+    const rows = (await asUser(deps.db, userId, (tx) => tx.query(
+      `select d.id, d.name, d.kind, d.head_revision as "headRevision",
+              (select max(revision) from layout_versions v where v.document_id = d.id and v.status = 'approved') as "approvedRevision",
+              d.created_at as "createdAt"
+       from graphic_documents d where d.project_id = $1 order by d.created_at`, [projectId]))).rows;
+    return { items: rows };
+  });
+
+  /** Pré-visualização fiel (mesmo renderizador da exportação) de um documento ainda não salvo. */
+  app.post('/v1/documents/:documentId/preview', async (req) => {
+    const userId = await auth(req);
+    const { documentId } = z.object({ documentId: z.string() }).parse(req.params);
+    const body = z.object({ document: z.unknown(), width: z.number().int().min(64).max(2048).default(720) }).parse(req.body);
+    const d = await asUser(deps.db, userId, (tx) => loadDoc(tx, documentId));
+    const parsed = GraphicDocumentSchema.safeParse({ ...(body.document as object), id: d.id, projectId: d.project_id });
+    if (!parsed.success) throw new HttpError(422, 'validation', 'Documento inválido', parsed.error.issues);
+    try {
+      const r = await renderPreview(parsed.data, projectAssetSource(d.project_id), body.width);
+      return { image: `data:image/png;base64,${Buffer.from(r.png).toString('base64')}`, warnings: r.warnings, textBounds: r.textBounds };
+    } catch (e) {
+      if (e instanceof RenderError) throw new HttpError(422, 'validation', e.message, e.issues);
+      throw e;
+    }
+  });
+
   app.get('/v1/documents/:documentId', async (req) => {
     const userId = await auth(req);
     const { documentId } = z.object({ documentId: z.string() }).parse(req.params);
@@ -376,6 +411,21 @@ export function buildApp(deps: AppDeps) {
     const saved = await saveRevision(userId, docId, 0, { ...master, id: docId });
     return { projectId: p.id, documentId: docId, revision: saved.revision, assets: ids };
   });
+
+  app.get('/v1/auth/mode', async () => ({ mode: deps.devAuth ? 'dev' : 'supabase' }));
+
+  if (deps.devAuth) {
+    const key = new TextEncoder().encode(deps.devAuth.jwtSecret);
+    app.post('/v1/dev/session', async (req) => {
+      const { userId } = z.object({ userId: UUID.optional() }).parse(req.body ?? {});
+      const id = userId ?? randomUUID();
+      await deps.db.query(`insert into auth.users (id) values ($1) on conflict (id) do nothing`, [id]);
+      const { SignJWT } = await import('jose');
+      const accessToken = await new SignJWT({ role: 'authenticated', dev: true }).setProtectedHeader({ alg: 'HS256' })
+        .setSubject(id).setAudience('authenticated').setIssuedAt().setExpirationTime('12h').sign(key);
+      return { userId: id, accessToken, mode: 'dev' };
+    });
+  }
 
   app.get('/v1/formats', async () => ({ items: BUILT_IN_FORMATS }));
 

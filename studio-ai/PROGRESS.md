@@ -68,3 +68,70 @@ tem teste de aceitação definido para o início da Etapa 2.
 2. Teste de aceitação do renderizador (resvg × Skia) com fontes, transparência, ordem, recorte, sombra, dimensões e determinismo.
 3. `packages/graphics-core`: documento → SVG, layout por âncoras, verificações básicas.
 4. Upload real com hash, editor básico (Skia), versões/aprovação/restauração e exportação PNG dos formatos Story, Feed e Sympla.
+
+---
+
+## Etapa 0.2 — Motor gráfico, backend e editor ✅ localmente · ⏳ Supabase pendente (21/11/2026)
+
+> Produto renomeado para **Lumpli** a pedido do usuário (pastas e pacotes internos mantêm `studio-ai` por ora).
+
+**Implementado e testado**
+- `packages/graphics-core` — renderizador determinístico (documento → SVG → resvg → PNG), texto em curvas a partir do
+  arquivo da fonte (sem substituição), conferência SHA-256 de cada original antes de usar, contrato de identidade,
+  motor de adaptação por zonas/âncoras/limites (pede revisão em vez de improvisar), 10 verificações de qualidade
+  determinísticas, pipeline adaptar → renderizar → verificar, pré-visualização para o editor.
+- `fixtures/demo-event` — evento **fictício** "Noite Neon": foto, logos e textura sintéticos gerados por código
+  (determinísticos), fontes Anton e Inter (licença OFL incluída), regras por proporção.
+- Migração 2 — bucket privado `studio-private`; funções de backend: `register_asset`, `create_document`,
+  `save_document_revision` (concorrência otimista + proveniência por hash), `approve_document_revision`
+  (congela identidade, substitui aprovação anterior), `restore_document_revision` (nova revisão),
+  `register_generated_material`; auditoria em todas; execução negada a usuários comuns.
+- `apps/api` — Fastify: JWT do Supabase (JWKS ou HS256), leituras via RLS (mesmo modelo do PostgREST), upload validado
+  pelo conteúdo, documentos/revisões/aprovação/restauração, exportação por formato, URLs assinadas, logs com
+  cabeçalhos sensíveis redigidos, configuração que nunca imprime valores secretos.
+- `apps/mobile` — tela Produção (login, evento fictício, projetos), projeto no servidor (upload real de foto/logo/fonte
+  com confirmação de direitos, arquivos com hash, materiais exportados), **editor**: pré-visualização fiel, tocar para
+  selecionar, arrastar para mover, mover/escala proporcional/alinhar, editar texto, trocar imagem por outro original,
+  bloquear, desfazer/refazer, guias de margem e centro, lista de camadas, salvar revisão, aprovar, exportar formatos,
+  histórico e restauração. Token guardado no Keychain/Keystore (SecureStore).
+- `scripts/dev-local.sh` — sobe banco local + API com segredos gerados na hora (nunca gravados).
+
+**Testes executados nesta etapa**
+| Suíte | Resultado |
+|---|---|
+| `packages/shared` | 16/16 ✅ |
+| `packages/db` (migrações reais em PGlite: RLS, imutabilidade, versionamento, permissões) | 20/20 ✅ |
+| `packages/graphics-core` (dimensões, determinismo, transparência, ordem, opacidade, fontes, glifos, integridade, adaptação nos 4 formatos, 10 verificações) | 33/33 ✅ |
+| `apps/api` (fluxo completo, isolamento entre usuários, uploads, conflito, hash adulterado, aprovação, exportação, restauração, auditoria, links assinados, configuração segura) | 20/20 ✅ |
+| TypeScript em todos os workspaces | ✅ |
+| Migrações aplicadas em **PostgreSQL 16 real** | ✅ |
+| API real (HTTP) + PostgreSQL 16 + Storage local: `scripts/smoke-http.ts` | ✅ 4 formatos, dimensões exatas; log sem tokens/segredos |
+| E2E Etapa 1 (Chromium) | 12/12 ✅ |
+| E2E Etapa 0.2 — app web + API real: login dev → evento fictício → upload real → editor → selecionar/mover/arrastar/desfazer → salvar → aprovar → exportar Story/Feed/Sympla → restaurar → materiais | 13/13 ✅ |
+| Bundle Android (Hermes) | ✅ |
+| Revisão visual humana (por mim, via capturas) | Layouts e adaptações conferidos; ver limitações |
+
+**Critério da Etapa 0.2** ("criar ou montar um flyer, aprovar e exportar três versões com dimensões corretas, sem IA
+generativa obrigatória"): **atendido no ambiente local** (API + PostgreSQL real + Storage em disco). No Supabase
+real ainda **não** foi executado.
+
+**Bloqueios**
+1. **Conector Supabase não conectado** na conta do usuário → não foi possível criar o projeto "Lumpli Dev", aplicar as
+   migrações, configurar Auth/Storage nem gerar as chaves. Ação necessária: conectar o conector oficial Supabase em
+   claude.ai → Configurações → Conectores. Depois: criar projeto (plano gratuito), aplicar `supabase/migrations`,
+   habilitar login por e-mail, guardar as chaves só no servidor, rodar `scripts/smoke-http.ts` contra ele.
+2. **Hospedagem da API** não definida (nenhum serviço pago foi contratado). Hoje a API roda localmente
+   (`npm run api:local`); o celular acessa pela rede local.
+3. **Login com conta real** (Supabase Auth no app) depende do item 1; hoje só existe o login de desenvolvimento local.
+4. Teste em **celular/emulador** físico ainda não executado (ambiente sem Android SDK/Xcode).
+
+**Limitações conhecidas**
+- Texto: mapeamento por cmap (sem ligaduras/scripts complexos); quebra de linha por palavras.
+- WebP aceito na detecção mas recusado no upload até o renderizador suportá-lo.
+- Exportação síncrona na API (adequada a poucos formatos); fila/worker na 0.3.
+- Projetos locais da Etapa 1 (AsyncStorage) e projetos do servidor ainda são listas separadas.
+- O editor não cria camadas novas nem edita regras de adaptação (o evento fictício já traz regras aprovadas).
+- Gesto de pinça para escala ainda não implementado (há botões de escala proporcional).
+
+## Próxima etapa recomendada
+Conectar o Supabase e concluir a infraestrutura da 0.2 (itens 1–3 acima); depois Etapa 0.3 (IA de referências e briefing).

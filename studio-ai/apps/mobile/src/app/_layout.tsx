@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ApiProvider } from '@/data/api';
 import { ProjectsProvider } from '@/data/projects';
 import { SettingsProvider, useSettings } from '@/data/settings';
 import { useThemeColors } from '@/theme/theme';
@@ -39,6 +40,9 @@ function ThemedStack() {
         <Stack.Screen name="project/[id]/index" options={{ title: 'Projeto' }} />
         <Stack.Screen name="project/[id]/briefing" options={{ title: 'Briefing', presentation: 'modal' }} />
         <Stack.Screen name="team" options={{ title: 'Minha Equipe de IA' }} />
+        <Stack.Screen name="cloud/index" options={{ title: 'Produção' }} />
+        <Stack.Screen name="cloud/[projectId]" options={{ title: 'Projeto no servidor' }} />
+        <Stack.Screen name="editor/[documentId]" options={{ title: 'Editor' }} />
       </Stack>
     </ThemeProvider>
   );
@@ -50,7 +54,9 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <SettingsProvider>
           <ProjectsProvider>
-            <ThemedStack />
+            <ApiProvider>
+              <ThemedStack />
+            </ApiProvider>
           </ProjectsProvider>
         </SettingsProvider>
       </SafeAreaProvider>

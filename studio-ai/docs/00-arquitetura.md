@@ -1,6 +1,6 @@
 # 00 — Arquitetura
 
-Status: **Etapa 0 concluída** · Revisão 1 · 21/11/2026
+Status: **Etapa 0.2 implementada** · Revisão 2 · 21/11/2026 · Produto: **Lumpli** (nome provisório anterior: Studio AI)
 
 ## Princípio: modelo híbrido
 
@@ -46,11 +46,12 @@ O monorepo fica em `studio-ai/` porque a raiz deste repositório publica um site
 | Pasta | Conteúdo | Etapa |
 |---|---|---|
 | `apps/mobile` | App Expo SDK 58, React Native 0.88, Expo Router, Reanimated 4 | 1 ✅ |
-| `apps/api` | API REST Node/TS (Fastify) com contratos de `packages/shared` | 2 |
-| `apps/worker` | Renderização e execução de tarefas de agentes | 2–3 |
+| `apps/api` | API REST Node/TS (Fastify): auth Supabase, uploads com hash, versões, aprovação, exportação | 0.2 ✅ |
+| `apps/worker` | Execução assíncrona de tarefas de agentes (na 0.2 a exportação roda na API, de forma síncrona) | 0.3 |
 | `packages/shared` | Esquemas zod: documento gráfico, identidade, domínio, agentes, contratos de API | 0 ✅ |
-| `packages/db` | Testes das migrações SQL em Postgres embutido (PGlite) | 0 ✅ |
-| `packages/graphics-core` | Layout, adaptação por regras, verificações, documento → SVG | 2 |
+| `packages/db` | Banco de teste (PGlite) com as migrações reais | 0 ✅ |
+| `fixtures/demo-event` | Evento fictício "Noite Neon": arquivos sintéticos + fontes OFL | 0.2 ✅ |
+| `packages/graphics-core` | Renderizador, contrato de identidade, adaptação por regras, verificações | 0.2 ✅ |
 | `packages/agent-system` | Orquestrador, grafo de dependências, provedores de IA | 3 |
 | `packages/ui` | Componentes compartilhados (quando surgir 2º cliente: web/desktop) | futuro |
 | `supabase/migrations` | Esquema SQL versionado com RLS | 0 ✅ |
@@ -70,14 +71,17 @@ Extrair antes de existir um segundo consumidor seria abstração prematura.
 - Dados locais em AsyncStorage na Etapa 1, atrás de uma interface de repositório que ganhará implementação
   Supabase na Etapa 2 (o armazenamento local vira cache offline).
 
-### Renderização (decisão a confirmar na Etapa 2 com testes)
-Candidato principal: **documento → SVG → `@resvg/resvg-js` → PNG**, com fontes carregadas explicitamente
-(arquivos enviados pelo usuário, verificados por hash) e `loadSystemFonts: false` para impedir substituição
-silenciosa. Imagens embutidas a partir do Storage. Alternativa: **Skia no Node** (`@shopify/react-native-skia`
-headless / `skia-canvas`), que daria paridade de pixel com o editor.
-Critérios do teste de aceitação (Etapa 2): fontes TTF/OTF com pesos, transparência (PNG RGBA), ordem de
-camadas, recorte/máscara, sombra, dimensões exatas, determinismo (mesmo hash em duas execuções).
-Captura de tela do celular **não** é usada como exportação.
+### Renderização — decisão tomada na Etapa 0.2 (validada por testes)
+**Documento → SVG → `@resvg/resvg-js` → PNG**, com o **texto convertido em curvas** pelo `opentype.js` a partir do
+ARQUIVO de fonte do projeto (verificado por SHA-256). Consequências:
+- não existe fonte substituta: fonte sem arquivo ou caractere sem glifo bloqueia a renderização com erro explícito;
+- `loadSystemFonts: false` no resvg; nenhuma dependência de fontes instaladas no servidor;
+- determinístico: mesma entrada → mesmos bytes (testado);
+- imagens entram pelo original (data URI), com recorte autorizado por `viewBox` e `preserveAspectRatio` (sem distorção).
+Limitação conhecida: o mapeamento caractere→glifo usa a tabela cmap (sem shaping GSUB completo). Atende escrita
+latina com acentos pré-compostos; ligaduras e scripts complexos ficam para depois.
+O editor mobile mostra uma **pré-visualização gerada pelo mesmo renderizador** (rota `/preview`), com seleção e gestos
+desenhados por cima — a tela é fiel à exportação sem duplicar o motor no celular.
 
 ### Backend e filas
 - Supabase: Auth, Postgres com RLS, Storage em bucket privado (`{org}/{projeto}/{asset}`), URLs assinadas curtas.

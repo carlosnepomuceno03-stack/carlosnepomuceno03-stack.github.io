@@ -25,6 +25,7 @@ export default function HomeScreen() {
       </View>
 
       <Button label="Novo projeto" icon="add" onPress={() => router.push('/create')} />
+      <Button label="Produção: editor, aprovação e exportação" icon="layers-outline" variant="secondary" onPress={() => router.push('/cloud')} />
 
       {corrupted && (
         <DemoBanner title="Atenção" message="Alguns dados salvos neste aparelho estavam inválidos e foram ignorados." />
@@ -69,7 +70,7 @@ export default function HomeScreen() {
       <EmptyState
         icon="ribbon-outline"
         title="Nenhum material aprovado"
-        message="Materiais aparecem aqui depois que você aprova um layout e exporta as adaptações (motor gráfico — Etapa 0.2)."
+        message="Os materiais exportados ficam em Produção, dentro de cada projeto do servidor."
       />
     </Screen>
   );

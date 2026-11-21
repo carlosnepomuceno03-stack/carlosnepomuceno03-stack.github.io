@@ -10,8 +10,8 @@ import { clearAllLocalData } from '@/data/storage';
 import { useThemeColors } from '@/theme/theme';
 
 const INTEGRATIONS = [
-  { name: 'Conta Studio AI (Supabase Auth)', stage: '0.2' },
-  { name: 'Armazenamento em nuvem', stage: '0.2' },
+  { name: 'Conta Lumpli (Supabase Auth)', stage: 'aguardando projeto Supabase' },
+  { name: 'Armazenamento em nuvem (Supabase Storage)', stage: 'aguardando projeto Supabase' },
   { name: 'Provedor de IA para análise', stage: '0.3' },
   { name: 'Pinterest / Behance (APIs oficiais)', stage: 'futuro, após autorização' },
 ];
