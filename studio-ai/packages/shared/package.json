@@ -1,0 +1,19 @@
+{
+  "name": "@studio-ai/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Esquemas, tipos e contratos compartilhados entre app, API, worker e renderizador",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.1"
+  }
+}

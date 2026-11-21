@@ -1,0 +1,19 @@
+{
+  "name": "studio-ai",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Studio AI — estúdio criativo mobile multiagente (monorepo)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "mobile": "npm run start --workspace apps/mobile",
+    "test:e2e": "npm run test:e2e --workspace apps/mobile"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
