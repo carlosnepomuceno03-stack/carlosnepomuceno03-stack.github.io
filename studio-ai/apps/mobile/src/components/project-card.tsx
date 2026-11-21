@@ -3,11 +3,17 @@ import { FLOW_STEPS, PROJECT_KIND_LABELS, completedSteps, type Project } from '@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { Card, Row, StatusPill, Text } from '@/components/ui';
+import { useApi } from '@/data/api';
+import { useProjects } from '@/data/projects';
 import { useThemeColors } from '@/theme/theme';
 import { formatDate } from '@/utils/format';
 
 export function ProjectCard({ project }: { project: Project }) {
   const { colors } = useThemeColors();
+  const { syncStatus } = useProjects();
+  const { session } = useApi();
+  const raw = syncStatus(project.id);
+  const sync = raw === 'pending' && !session ? 'local' : raw;
   const { done, total } = completedSteps(project);
   const step = FLOW_STEPS.find((s) => s.id === project.currentStep);
   return (
@@ -16,7 +22,15 @@ export function ProjectCard({ project }: { project: Project }) {
       accessibilityLabel={`Abrir projeto ${project.name}`}>
       <Row style={{ justifyContent: 'space-between' }}>
         <Text variant="label" color="accent">{PROJECT_KIND_LABELS[project.kind].toUpperCase()}</Text>
-        {project.eventDate && <Text variant="caption">{formatDate(project.eventDate)}</Text>}
+        <Row>
+          {project.eventDate && <Text variant="caption">{formatDate(project.eventDate)}</Text>}
+          <Ionicons
+            name={sync === 'synced' ? 'cloud-done-outline' : sync === 'pending' ? 'cloud-upload-outline' : 'phone-portrait-outline'}
+            size={15}
+            color={sync === 'synced' ? colors.success : sync === 'pending' ? colors.info : colors.textMuted}
+            accessibilityLabel={sync === 'synced' ? 'Sincronizado na nuvem' : sync === 'pending' ? 'Envio pendente' : 'Somente neste aparelho'}
+          />
+        </Row>
       </Row>
       <Text variant="heading" numberOfLines={2}>{project.name}</Text>
       <Row style={{ justifyContent: 'space-between' }}>

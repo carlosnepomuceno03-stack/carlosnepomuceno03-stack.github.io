@@ -85,6 +85,18 @@ export default function ProfileScreen() {
         ]}
       />
 
+      <SectionHeader title="Conta e nuvem" />
+      <Card onPress={() => router.push('/cloud')} accessibilityLabel="Abrir Conta e nuvem">
+        <Row>
+          <Ionicons name="cloud-outline" size={20} color={colors.text} />
+          <View style={{ flex: 1 }}>
+            <Text variant="bodyStrong">Conta e nuvem</Text>
+            <Text variant="caption">Entrar, sincronizar projetos e criar o evento fictício</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+        </Row>
+      </Card>
+
       <SectionHeader title="Equipe de IA" />
       <Card onPress={() => router.push('/team')} accessibilityLabel="Abrir Minha Equipe de IA">
         <Row>
@@ -118,7 +130,7 @@ export default function ProfileScreen() {
       </Card>
 
       <Text variant="caption" color="textMuted" style={{ textAlign: 'center' }}>
-        Studio AI {Constants.expoConfig?.version ?? ''} · Etapa 1 (base mobile)
+        Lumpli {Constants.expoConfig?.version ?? ''} · Etapa 1 (base mobile)
       </Text>
     </Screen>
   );

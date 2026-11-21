@@ -3,11 +3,14 @@ import { router } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 import { ProjectCard } from '@/components/project-card';
 import { Button, Card, DemoBanner, EmptyState, Row, SectionHeader, StatusPill, Text, Screen } from '@/components/ui';
+import { useApi } from '@/data/api';
 import { useProjects } from '@/data/projects';
+import { relativeTime } from '@/utils/format';
 import { useThemeColors } from '@/theme/theme';
 
 export default function HomeScreen() {
-  const { projects, loaded, corrupted } = useProjects();
+  const { projects, loaded, corrupted, syncing, syncError, pendingCount, lastSyncAt, syncNow } = useProjects();
+  const api = useApi();
   const { colors } = useThemeColors();
 
   // Tarefas pendentes reais: a próxima etapa de cada projeto que depende do usuário.
@@ -19,13 +22,32 @@ export default function HomeScreen() {
   return (
     <Screen>
       <View style={{ gap: 4 }}>
-        <Text variant="label" color="accent">STUDIO AI</Text>
+        <Text variant="label" color="accent">LUMPLI</Text>
         <Text variant="display" accessibilityRole="header">Seu estúdio criativo</Text>
         <Text variant="body" color="textSecondary">Crie, aprove e adapte materiais mantendo a direção de arte sob controle.</Text>
       </View>
 
       <Button label="Novo projeto" icon="add" onPress={() => router.push('/create')} />
-      <Button label="Produção: editor, aprovação e exportação" icon="layers-outline" variant="secondary" onPress={() => router.push('/cloud')} />
+      {api.configured && (
+        <Card>
+          {api.session ? (
+            <Row>
+              <Text variant="caption" style={{ flex: 1 }} color={syncError ? 'danger' : 'textSecondary'}>
+                {syncing ? 'Sincronizando com a nuvem…'
+                  : syncError ? syncError
+                  : pendingCount ? `${pendingCount} alteração(ões) aguardando envio`
+                  : lastSyncAt ? `Tudo sincronizado · ${relativeTime(lastSyncAt)}` : 'Conectado à nuvem'}
+              </Text>
+              <Button label="Sincronizar" variant="ghost" icon="sync" onPress={syncNow} loading={syncing} />
+            </Row>
+          ) : (
+            <Row>
+              <Text variant="caption" style={{ flex: 1 }}>Seus projetos estão só neste aparelho. Entre para salvá-los na nuvem.</Text>
+              <Button label="Entrar" variant="ghost" icon="log-in-outline" onPress={() => router.push('/cloud')} />
+            </Row>
+          )}
+        </Card>
+      )}
 
       {corrupted && (
         <DemoBanner title="Atenção" message="Alguns dados salvos neste aparelho estavam inválidos e foram ignorados." />

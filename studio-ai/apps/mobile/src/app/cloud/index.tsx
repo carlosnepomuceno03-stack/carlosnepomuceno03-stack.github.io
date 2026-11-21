@@ -1,31 +1,19 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Button, Card, DemoBanner, EmptyState, Row, Screen, SectionHeader, Text } from '@/components/ui';
-import { API_URL, ApiError, useApi, type ServerProject } from '@/data/api';
+import { Button, Card, DemoBanner, EmptyState, Row, Screen, Text } from '@/components/ui';
+import { API_URL, ApiError, useApi } from '@/data/api';
+import { useProjects } from '@/data/projects';
 import { useThemeColors } from '@/theme/theme';
 
 /** Produção no servidor: projetos com arquivos reais, documento por camadas, aprovação e exportação. */
 export default function CloudHome() {
   const api = useApi();
   const { colors } = useThemeColors();
-  const [projects, setProjects] = useState<ServerProject[] | null>(null);
+  const { syncNow, projects } = useProjects();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    if (!api.session) return;
-    try {
-      setProjects((await api.request<{ items: ServerProject[] }>('/v1/projects')).items);
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }, [api]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -51,7 +39,7 @@ export default function CloudHome() {
   return (
     <Screen edges={[]}>
       <View style={{ gap: 4 }}>
-        <Text variant="title" accessibilityRole="header">Produção</Text>
+        <Text variant="title" accessibilityRole="header">Conta e nuvem</Text>
         <Text variant="caption">Servidor: {API_URL}</Text>
       </View>
 
@@ -83,28 +71,17 @@ export default function CloudHome() {
             loading={busy}
             onPress={() => run(async () => {
               const r = await api.request<{ projectId: string }>('/v1/demo/seed', { body: { organizationId: api.session!.organizationId } });
-              await load();
+              await syncNow();
               router.push({ pathname: '/cloud/[projectId]', params: { projectId: r.projectId } });
             })}
           />
-          <SectionHeader title="Projetos no servidor" />
-          {projects === null ? (
-            <ActivityIndicator color={colors.accent} />
-          ) : projects.length === 0 ? (
-            <EmptyState icon="folder-open-outline" title="Nenhum projeto no servidor" message="Crie o evento fictício para testar o fluxo completo." />
-          ) : (
-            projects.map((p) => (
-              <Card key={p.id} onPress={() => router.push({ pathname: '/cloud/[projectId]', params: { projectId: p.id } })} accessibilityLabel={`Abrir ${p.name}`}>
-                <Row>
-                  <View style={{ flex: 1 }}>
-                    <Text variant="bodyStrong">{p.name}</Text>
-                    <Text variant="caption">{p.venue ?? p.kind}</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-                </Row>
-              </Card>
-            ))
-          )}
+          <Card onPress={() => router.replace('/')} accessibilityLabel="Ver meus projetos">
+            <Row>
+              <Ionicons name="folder-open-outline" size={20} color={colors.text} />
+              <Text variant="body" style={{ flex: 1 }}>Meus projetos ({projects.length}) — uma única lista, sincronizada</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+            </Row>
+          </Card>
         </>
       )}
       {error && <Text variant="caption" color="danger">{error}</Text>}

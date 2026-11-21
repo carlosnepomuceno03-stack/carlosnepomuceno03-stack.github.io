@@ -2,6 +2,7 @@ import { FLOW_STEPS, PROJECT_KIND_LABELS, completedSteps, type FlowStepId } from
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { Alert, Platform, View } from 'react-native';
 import { Button, Card, EmptyState, Row, Screen, SectionHeader, StatusPill, Text } from '@/components/ui';
+import { useApi } from '@/data/api';
 import { latestBriefing, useProjects } from '@/data/projects';
 import { useThemeColors } from '@/theme/theme';
 import { formatDate } from '@/utils/format';
@@ -34,7 +35,8 @@ function confirm(title: string, message: string): Promise<boolean> {
 
 export default function ProjectScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { projects, briefings, references, deleteProject, loaded } = useProjects();
+  const { projects, briefings, references, deleteProject, loaded, syncStatus } = useProjects();
+  const api = useApi();
   const { colors } = useThemeColors();
   const project = projects.find((p) => p.id === id);
 
@@ -97,6 +99,23 @@ export default function ProjectScreen() {
         </Row>
         <Text variant="caption">Links do Pinterest e Behance são guardados como links; o conteúdo não é baixado.</Text>
         <Button label="Adicionar referência" variant="secondary" icon="link" onPress={() => router.push({ pathname: '/library', params: { projectId: project.id } })} />
+      </Card>
+
+      <Card>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <Text variant="heading">Arquivos, layouts e exportação</Text>
+          <Text variant="caption" color={syncStatus(project.id) === 'synced' ? 'success' : 'textMuted'}>
+            {syncStatus(project.id) === 'synced' ? 'Na nuvem' : syncStatus(project.id) === 'pending' && api.session ? 'Enviando…' : 'Só no aparelho'}
+          </Text>
+        </Row>
+        {syncStatus(project.id) === 'synced' ? (
+          <Button label="Abrir produção" icon="layers-outline" onPress={() => router.push({ pathname: '/cloud/[projectId]', params: { projectId: project.id } })} />
+        ) : (
+          <>
+            <Text variant="caption">Arquivos originais, editor, aprovação e exportação usam o servidor. {api.session ? 'O projeto será enviado automaticamente.' : 'Entre para enviar este projeto à nuvem.'}</Text>
+            {!api.session && api.configured && <Button label="Entrar" variant="secondary" icon="log-in-outline" onPress={() => router.push('/cloud')} />}
+          </>
+        )}
       </Card>
 
       <SectionHeader title="Fluxo de produção" />

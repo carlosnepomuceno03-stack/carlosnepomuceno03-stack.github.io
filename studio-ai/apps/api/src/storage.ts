@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
+import { serviceHeaders } from './data';
 
 /**
  * Armazenamento de objetos. Originais são gravados uma única vez (sem sobrescrita: `upsert: false`).
@@ -20,7 +21,7 @@ function assertSafe(path: string) {
 /** Supabase Storage via REST com a service role key (somente no servidor). */
 export function supabaseStorage(opts: { url: string; serviceKey: string; bucket: string }): ObjectStorage {
   const base = `${opts.url.replace(/\/$/, '')}/storage/v1`;
-  const headers = { authorization: `Bearer ${opts.serviceKey}`, apikey: opts.serviceKey };
+  const headers = serviceHeaders(opts.serviceKey);
   return {
     async put(path, bytes, mimeType) {
       assertSafe(path);

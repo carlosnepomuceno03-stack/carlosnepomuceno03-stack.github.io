@@ -6,3 +6,4 @@ export * from './domain';
 export * from './agents';
 export * from './api';
 export * from './project-factory';
+export * from './sync';

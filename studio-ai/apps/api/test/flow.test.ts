@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app';
 import { createVerifier } from '../src/auth';
+import { sqlDataPort } from '../src/data';
 import type { Db } from '../src/db';
 import { localStorage } from '../src/storage';
 
@@ -47,7 +48,7 @@ beforeAll(async () => {
   pglite = await createTestDatabase([ALICE, BOB]);
   storageDir = mkdtempSync(join(tmpdir(), 'lumpli-storage-'));
   app = buildApp({
-    db: pgliteDb(pglite),
+    data: sqlDataPort(pgliteDb(pglite)),
     storage: localStorage({ dir: storageDir, secret: 'segredo-urls-local-teste', publicBaseUrl: 'http://api.test' }),
     verify: createVerifier({ jwtSecret: SECRET }),
     demoDir: DEMO_EVENT_DIR,

@@ -40,8 +40,8 @@ function ThemedStack() {
         <Stack.Screen name="project/[id]/index" options={{ title: 'Projeto' }} />
         <Stack.Screen name="project/[id]/briefing" options={{ title: 'Briefing', presentation: 'modal' }} />
         <Stack.Screen name="team" options={{ title: 'Minha Equipe de IA' }} />
-        <Stack.Screen name="cloud/index" options={{ title: 'Produção' }} />
-        <Stack.Screen name="cloud/[projectId]" options={{ title: 'Projeto no servidor' }} />
+        <Stack.Screen name="cloud/index" options={{ title: 'Conta e nuvem' }} />
+        <Stack.Screen name="cloud/[projectId]" options={{ title: 'Produção' }} />
         <Stack.Screen name="editor/[documentId]" options={{ title: 'Editor' }} />
       </Stack>
     </ThemeProvider>
@@ -53,11 +53,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <SettingsProvider>
-          <ProjectsProvider>
-            <ApiProvider>
+          <ApiProvider>
+            <ProjectsProvider>
               <ThemedStack />
-            </ApiProvider>
-          </ProjectsProvider>
+            </ProjectsProvider>
+          </ApiProvider>
         </SettingsProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

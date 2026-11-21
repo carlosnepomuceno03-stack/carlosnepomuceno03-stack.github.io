@@ -50,10 +50,61 @@ const step = async (name, fn) => {
   }
 };
 
-await step('entra com sessão de desenvolvimento', async () => {
+// Verificação direta no banco (opcional): DATABASE_URL do ambiente local
+const pgModule = await import('pg').catch(() => null);
+const db = process.env.DATABASE_URL && pgModule ? new pgModule.default.Client({ connectionString: process.env.DATABASE_URL }) : null;
+if (db) await db.connect();
+const PROJ = `Festa Offline ${Date.now()}`;
+
+await step('cria projeto e briefing SEM login (só no aparelho)', async () => {
+  await page.goto('http://127.0.0.1:8099/');
+  await text('Seus projetos estão só neste aparelho');
+  await visible(page.getByRole('tab', { name: 'Criar' }).or(page.getByLabel('Criar', { exact: true }))).click();
+  await visible(page.getByRole('radio', { name: /Evento/ })).click();
+  await visible(page.getByLabel('Nome do evento')).fill(PROJ);
+  await btn('Criar projeto').click();
+  await text('Só no aparelho');
+  await btn('Informar briefing').click();
+  await visible(page.getByLabel('Objetivo')).fill('Testar a sincronização');
+  await visible(page.getByLabel('Textos obrigatórios')).fill('SÁB 20.12');
+  await btn('Salvar briefing').click();
+  await text('Revisão 1 · 1 texto(s) obrigatório(s)');
+});
+
+await step('entra e o projeto local é enviado à nuvem (lista única)', async () => {
   await page.goto('http://127.0.0.1:8099/cloud');
   await text('LOGIN DE DESENVOLVIMENTO');
   await btn('Entrar (desenvolvimento)').click();
+  await text('Criar evento fictício de demonstração');
+  await visible(page.getByLabel('Ver meus projetos')).click();
+  await text('Tudo sincronizado', 20000);
+  await visible(page.getByLabel(`Abrir projeto ${PROJ}`)).waitFor();
+  await visible(page.getByLabel('Sincronizado na nuvem')).waitFor();
+  await shot('00-sincronizado');
+  if (db) {
+    const r = await db.query(`select p.id, (select count(*) from briefings b where b.project_id = p.id)::int as briefings from projects p where p.name = $1 and p.deleted_at is null`, [PROJ]);
+    if (r.rows.length !== 1 || r.rows[0].briefings !== 1) throw new Error(`no banco: ${JSON.stringify(r.rows)}`);
+  }
+});
+
+await step('projeto sincronizado abre a produção pelo próprio projeto', async () => {
+  await visible(page.getByLabel(`Abrir projeto ${PROJ}`)).click();
+  await text('Na nuvem');
+  await btn('Abrir produção').click();
+  await text('Nenhum documento ainda');
+  await page.goBack();
+});
+
+await step('excluir no app exclui (logicamente) na nuvem', async () => {
+  page.once('dialog', (d) => d.accept());
+  await btn('Excluir projeto').click();
+  await text('Tudo sincronizado', 20000);
+  if (db) {
+    const r = await db.query(`select deleted_at from projects where name = $1`, [PROJ]);
+    if (!r.rows[0]?.deleted_at) throw new Error('projeto não foi marcado como excluído no servidor');
+  }
+  await visible(page.getByRole('tab', { name: 'Perfil' }).or(page.getByLabel('Perfil', { exact: true }))).click();
+  await visible(page.getByLabel('Abrir Conta e nuvem')).click();
   await text('Criar evento fictício de demonstração');
 });
 
@@ -149,5 +200,6 @@ await step('sem erros de JavaScript', async () => {
 
 await browser.close();
 server.close();
+await db?.end();
 console.log(failures ? `\n${failures} falha(s)` : '\nTodos os passos passaram');
 process.exit(failures ? 1 : 0);

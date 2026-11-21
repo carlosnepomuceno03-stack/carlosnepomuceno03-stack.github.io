@@ -68,7 +68,7 @@ export default function LibraryScreen() {
       <Card>
         <Text variant="heading">Adicionar referência por link</Text>
         <Text variant="caption">
-          Guardamos apenas o link. O Studio AI não copia conteúdo do Pinterest ou Behance sem autorização da plataforma.
+          Guardamos apenas o link. O Lumpli não copia conteúdo do Pinterest ou Behance sem autorização da plataforma.
           Referências não significam permissão de uso comercial.
         </Text>
         <TextField label="Link" value={url} onChangeText={(t) => { setUrl(t); setError(null); }} placeholder="https://br.pinterest.com/pin/…" autoCapitalize="none" autoCorrect={false} keyboardType="url" error={error ?? undefined} />

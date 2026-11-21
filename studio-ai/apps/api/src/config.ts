@@ -7,7 +7,11 @@ import { z } from 'zod';
 const EnvSchema = z.object({
   PORT: z.coerce.number().int().default(8787),
   HOST: z.string().default('0.0.0.0'),
-  DATABASE_URL: z.string().min(1),
+  /** postgres: conexão direta (local/VM). supabase-rest: HTTPS via PostgREST (qualquer hospedagem, inclusive serverless). */
+  DATA_DRIVER: z.enum(['postgres', 'supabase-rest']).default('postgres'),
+  DATABASE_URL: z.string().min(1).optional(),
+  /** Chave pública (anon/publishable) — usada junto com o JWT do usuário nas chamadas REST. */
+  SUPABASE_ANON_KEY: z.string().min(20).optional(),
   SUPABASE_URL: z.string().url().optional(),
   /** Chave service role: só no servidor. */
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20).optional(),
@@ -36,7 +40,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   if (c.STORAGE_DRIVER === 'supabase' && (!c.SUPABASE_URL || !c.SUPABASE_SERVICE_ROLE_KEY)) {
     throw new Error('STORAGE_DRIVER=supabase exige SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY');
   }
-  if (c.DEV_AUTH === 'true' && (c.STORAGE_DRIVER !== 'local' || !c.SUPABASE_JWT_SECRET)) {
+  if (c.DATA_DRIVER === 'postgres' && !c.DATABASE_URL) throw new Error('DATA_DRIVER=postgres exige DATABASE_URL');
+  if (c.DATA_DRIVER === 'supabase-rest' && (!c.SUPABASE_URL || !c.SUPABASE_ANON_KEY || !c.SUPABASE_SERVICE_ROLE_KEY)) {
+    throw new Error('DATA_DRIVER=supabase-rest exige SUPABASE_URL, SUPABASE_ANON_KEY e SUPABASE_SERVICE_ROLE_KEY');
+  }
+  if (c.DEV_AUTH === 'true' && (c.STORAGE_DRIVER !== 'local' || c.DATA_DRIVER !== 'postgres' || !c.SUPABASE_JWT_SECRET)) {
     throw new Error('DEV_AUTH só é permitido em desenvolvimento local (STORAGE_DRIVER=local com segredo JWT local)');
   }
   if (!c.SUPABASE_JWT_SECRET && !c.SUPABASE_URL) throw new Error('Defina SUPABASE_URL (JWKS) ou SUPABASE_JWT_SECRET');

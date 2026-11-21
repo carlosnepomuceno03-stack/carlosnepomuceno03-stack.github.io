@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Studio AI",
-    "slug": "studio-ai",
-    "version": "0.1.0",
+    "name": "Lumpli",
+    "slug": "lumpli",
+    "version": "0.2.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "studioai",
+    "scheme": "lumpli",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "app.studioai.mobile",
+      "bundleIdentifier": "app.lumpli.mobile",
       "supportsTablet": true
     },
     "android": {
@@ -20,7 +20,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "app.studioai.mobile"
+      "package": "app.lumpli.mobile"
     },
     "web": {
       "output": "single",

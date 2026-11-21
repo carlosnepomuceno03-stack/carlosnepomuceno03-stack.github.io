@@ -1,5 +1,5 @@
 /**
- * Tokens visuais do Studio AI. Dark mode é o padrão; o tema claro é opcional (Perfil → Aparência).
+ * Tokens visuais do Lumpli. Dark mode é o padrão; o tema claro é opcional (Perfil → Aparência).
  * Paleta sóbria: um único acento, cores de estado semânticas, sem gradientes decorativos.
  */
 export type ThemeColors = {

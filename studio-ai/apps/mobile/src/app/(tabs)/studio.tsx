@@ -118,7 +118,7 @@ export default function StudioScreen() {
                 <View key={c} style={{ width: 18, height: 24, borderRadius: 3, backgroundColor: c, opacity: 0.55 }} />
               ))}
             </View>
-            <Text variant="label" color="textMuted">STUDIO AI · SALA 01</Text>
+            <Text variant="label" color="textMuted">LUMPLI · SALA 01</Text>
           </View>
           <View style={[styles.floor, { backgroundColor: colors.studioFloor }]}>
             <View style={styles.centerRow}>
