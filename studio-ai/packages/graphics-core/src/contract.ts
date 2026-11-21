@@ -17,7 +17,8 @@ export function createIdentityContract(
     approvedBy: string;
     now: Date;
     note?: string;
-    aspectRules: AspectRule[];
+    /** Padrão: regras propostas no próprio documento; na falta delas, `defaultAspectRules`. */
+    aspectRules?: AspectRule[];
     revision?: number;
     parentRevision?: number | null;
     safeMarginRatio?: number;
@@ -69,8 +70,24 @@ export function createIdentityContract(
     spacingUnit: 8 / Math.min(doc.width, doc.height),
     safeMarginRatio: opts.safeMarginRatio ?? 0.05,
     elements,
-    aspectRules: opts.aspectRules,
+    aspectRules: opts.aspectRules ?? (doc.aspectRules.length ? doc.aspectRules : defaultAspectRules(doc)),
     approvals: [{ approvedBy: opts.approvedBy, approvedAt: ts, ...(opts.note ? { note: opts.note } : {}) }],
     createdAt: ts,
   });
+}
+
+/**
+ * Regras padrão quando o layout não define nenhuma: cada zona mantém sua posição relativa dentro da área segura,
+ * com escala uniforme (contain). Conservador por design — formatos muito diferentes tendem a pedir revisão.
+ */
+export function defaultAspectRules(doc: GraphicDocument): AspectRule[] {
+  const aspects = ['tall', 'portrait', 'square', 'landscape', 'wide'] as const;
+  return aspects.map((aspect) => ({
+    aspect,
+    arrangement: 'keep' as const,
+    optionalLayerIds: [],
+    zoneTargets: Object.fromEntries(
+      doc.zones.map((z) => [z.id, { x: z.x, y: z.y, width: z.width, height: z.height, bleed: false, fit: 'contain' as const, align: { horizontal: 'center' as const, vertical: 'middle' as const } }]),
+    ),
+  }));
 }

@@ -1,14 +1,12 @@
-import { PGlite } from '@electric-sql/pglite';
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import type { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { createTestDatabase } from '../src';
 
 /**
  * Executa as migrações reais contra um Postgres embutido.
  * O Supabase fornece o schema `auth`; aqui criamos um substituto mínimo com o mesmo contrato:
  * auth.users(id) e auth.uid() lendo o claim `sub` da sessão, como no PostgREST.
  */
-const MIGRATIONS = join(__dirname, '../../../supabase/migrations');
 const U1 = '11111111-1111-1111-1111-111111111111';
 const U2 = '22222222-2222-2222-2222-222222222222';
 const SHA = 'b'.repeat(64);
@@ -25,23 +23,7 @@ async function as<T>(user: string, fn: () => Promise<T>): Promise<T> {
 }
 
 beforeAll(async () => {
-  db = new PGlite();
-  await db.exec(`
-    create schema auth;
-    create table auth.users (id uuid primary key);
-    create function auth.uid() returns uuid language sql stable as
-      $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-    create role authenticated;
-    insert into auth.users values ('${U1}'), ('${U2}');
-  `);
-  for (const f of readdirSync(MIGRATIONS).filter((n) => n.endsWith('.sql')).sort()) {
-    await db.exec(readFileSync(join(MIGRATIONS, f), 'utf8'));
-  }
-  await db.exec(`
-    grant usage on schema public, auth to authenticated;
-    grant select, insert, update, delete on all tables in schema public to authenticated;
-    grant execute on all functions in schema public, auth to authenticated;
-  `);
+  db = await createTestDatabase([U1, U2]);
 });
 
 async function setupOrgAndProject(user: string) {
@@ -135,16 +117,16 @@ describe('imutabilidade', () => {
     await expect(db.query(`update layout_versions set status = 'approved' where document_id = $1`, [docId])).rejects.toThrow(/imutável/);
   });
 
-  it('usuário do app só insere revisões em rascunho', async () => {
+  it('app não cria documentos nem revisões diretamente (só via API validada)', async () => {
     const { projectId } = await setupOrgAndProject(U1);
-    const docId = await as(U1, async () => {
-      const d = await db.query<{ id: string }>(`insert into graphic_documents (project_id, name, kind) values ($1, 'Flyer', 'master') returning id`, [projectId]);
-      return d.rows[0]!.id;
-    });
+    await expect(
+      as(U1, () => db.query(`insert into graphic_documents (project_id, name, kind) values ($1, 'Flyer', 'master')`, [projectId])),
+    ).rejects.toThrow(/row-level security/);
+    const d = await db.query<{ id: string }>(`insert into graphic_documents (project_id, name, kind) values ($1, 'Flyer', 'master') returning id`, [projectId]);
     await expect(
       as(U1, () => db.query(
-        `insert into layout_versions (document_id, revision, schema_version, content, content_sha256, status, created_by) values ($1, 1, 1, '{}', $2, 'approved', $3)`,
-        [docId, SHA, U1],
+        `insert into layout_versions (document_id, revision, schema_version, content, content_sha256, status, created_by) values ($1, 1, 1, '{}', $2, 'draft', $3)`,
+        [d.rows[0]!.id, SHA, U1],
       )),
     ).rejects.toThrow(/row-level security/);
   });

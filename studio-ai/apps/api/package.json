@@ -1,0 +1,29 @@
+{
+  "name": "@studio-ai/api",
+  "version": "0.2.0",
+  "private": true,
+  "description": "API do Lumpli: autenticação Supabase, uploads com hash, versionamento, aprovação e exportação",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@studio-ai/graphics-core": "*",
+    "@studio-ai/shared": "*",
+    "fastify": "^5.12.0",
+    "jose": "^6.2.0",
+    "pg": "^8.23.0",
+    "tsx": "^4.20.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@studio-ai/db": "*",
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.23.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.1"
+  }
+}

@@ -68,6 +68,7 @@ export function buildDemoMaster(files: DemoAssetFile[], opts: { id?: string; pro
       { id: 'info', name: 'Informações', x: 0.05, y: 0.62, width: 0.9, height: 0.34, layerIds: ['divider', 'title', 'subtitle', 'date', 'venue', 'cta_bg', 'cta_text'] },
       { id: 'sponsors', name: 'Patrocínio', x: 0.38, y: 0.955, width: 0.24, height: 0.04, layerIds: ['sponsor'] },
     ],
+    aspectRules: DEMO_ASPECT_RULES,
     layers: [
       { id: 'bg', name: 'Fundo', type: 'background', role: 'background', x: 0, y: 0, width: 1080, height: 1350, color: '#0B0A14', assetId: a.texture.id, assetSha256: a.texture.sha256, priority: 9, locked: true, constraints: { keepAspectRatio: true, minScale: 0.1, maxScale: 10, allowCrop: true } },
       { id: 'photo', name: 'Artista (fictício)', type: 'image', role: 'photo', x: 0, y: 0, width: 1080, height: 864, assetId: a.photo.id, assetSha256: a.photo.sha256, fit: 'cover', protected: true, priority: 2, constraints: { keepAspectRatio: true, minScale: 0.3, maxScale: 3, allowCrop: true } },

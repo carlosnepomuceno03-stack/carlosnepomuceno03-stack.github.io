@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AnchorSchema, HexColorSchema, LayerRoleSchema } from './document';
+import { AnchorSchema, AspectRuleSchema, HexColorSchema, LayerRoleSchema } from './document';
 import { aspectClass, type AspectClass } from './formats';
 
 /**
@@ -29,33 +29,7 @@ export const ElementRuleSchema = z.object({
   approvedText: z.string().optional(),
 });
 
-/**
- * Posição de destino de uma zona de conteúdo num formato.
- * Coordenadas normalizadas (0–1) relativas à área segura do formato — ou ao quadro inteiro quando `bleed`.
- */
-export const ZoneTargetSchema = z.object({
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
-  width: z.number().gt(0).max(1),
-  height: z.number().gt(0).max(1),
-  /** Sangria: ocupa o quadro inteiro, ignorando a margem segura (fotos de fundo). */
-  bleed: z.boolean().default(false),
-  /** `cover` preenche a área com recorte proporcional (só para camada única com corte autorizado). */
-  fit: z.enum(['contain', 'cover']).default('contain'),
-  align: AnchorSchema.default({ horizontal: 'center', vertical: 'middle' }),
-});
-export type ZoneTarget = z.infer<typeof ZoneTargetSchema>;
-
-export const AspectRuleSchema = z.object({
-  aspect: z.enum(['tall', 'portrait', 'square', 'landscape', 'wide']),
-  /** Camadas que podem ser ocultadas neste tipo de proporção (ex.: decoração em banners baixos). */
-  optionalLayerIds: z.array(z.string()).default([]),
-  /** Reorganização permitida: empilhar (vertical) ou lado a lado (horizontal). */
-  arrangement: z.enum(['stack', 'side_by_side', 'keep']).default('keep'),
-  /** Onde cada zona do layout principal vai neste tipo de proporção (aprovado junto com o contrato). */
-  zoneTargets: z.record(z.string(), ZoneTargetSchema).default({}),
-});
-export type AspectRule = z.infer<typeof AspectRuleSchema>;
+export { AspectRuleSchema, ZoneTargetSchema, type AspectRule, type ZoneTarget } from './document';
 
 export const VisualIdentityContractSchema = z.object({
   id: z.string().min(1),
